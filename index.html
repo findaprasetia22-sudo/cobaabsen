@@ -30,7 +30,7 @@
     }
 
     .container {
-      max-width: 500px;
+      max-width: 600px;
       margin: 0 auto;
     }
 
@@ -53,16 +53,16 @@
       margin-top: 5px;
     }
 
-    /* Struktur Menu Navigasi Atas */
+    /* Menu Navigasi Atas */
     .nav-menu {
       display: flex;
-      gap: 10px;
+      gap: 5px;
       margin-bottom: 15px;
     }
 
     .nav-item {
       flex: 1;
-      padding: 12px;
+      padding: 12px 5px;
       background: rgba(255, 255, 255, 0.15);
       border: 1px solid rgba(255, 255, 255, 0.2);
       color: #fff;
@@ -71,7 +71,7 @@
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
-      font-size: 14px;
+      font-size: 13px;
     }
 
     .nav-item.active {
@@ -153,19 +153,13 @@
     }
     button.secondary:hover { background: #e2e8f0; }
 
-    button.danger {
-      background: var(--danger);
-      box-shadow: 0 4px 6px rgba(229, 62, 62, 0.2);
-    }
-    button.danger:hover { background: #c53030; }
-
-    /* Kamera Area (PERBAIKAN AGAR TIDAK TERPOTONG) */
+    /* Kamera Area (Sesuai Perbaikan) */
     .camera-box {
       position: relative;
       width: 100%;
       border-radius: 12px;
       overflow: hidden;
-      background: #222; /* Latar belakang gelap jika aspek rasio berbeda */
+      background: #222;
       margin-top: 15px;
     }
 
@@ -173,7 +167,7 @@
       width: 100%;
       height: auto;
       display: block;
-      object-fit: contain; /* PERBAIKAN UTAMA: Menggunakan contain agar wajah masuk utuh */
+      object-fit: contain;
     }
 
     /* Info Profil & Riwayat Box */
@@ -213,6 +207,43 @@
       margin-top: 4px;
     }
 
+    /* CSS Desain Tabel Riwayat Bulanan */
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 15px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    th {
+      background-color: var(--primary);
+      color: white;
+      padding: 10px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 10px;
+      border-bottom: 1px solid #e2e8f0;
+      color: var(--text-dark);
+      white-space: nowrap;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f7fafc;
+    }
+
+    .text-center { text-align: center; }
+
     /* Overlay Status Loading */
     .loading-overlay {
       position: fixed;
@@ -226,7 +257,7 @@
       font-size: 16px;
     }
 
-    /* Sistem Manajemen View Halaman */
+    /* Toggles Page */
     .app-page { display: none; }
     #view-login { display: block; }
     #view-main-app { display: none; }
@@ -261,11 +292,12 @@
       
       <div class="nav-menu">
         <div class="nav-item active" id="btn-nav-absen" onclick="switchPage('absen')">📝 Presensi</div>
+        <div class="nav-item" id="btn-nav-riwayat" onclick="switchPage('riwayat')">📅 Riwayat Bulanan</div>
         <div class="nav-item" id="btn-nav-password" onclick="switchPage('password')">🔒 Ubah Password</div>
       </div>
 
       <div class="card">
-        <h3>Riwayat Kehadiran Hari Ini</h3>
+        <h3>Informasi Pengguna</h3>
         <div class="profile-info">
           <div id="profNama">Nama: -</div>
           <div id="profNip">NIP: -</div>
@@ -274,11 +306,11 @@
 
         <div class="riwayat-grid">
           <div class="riwayat-item">
-            <span>Jam Masuk</span>
+            <span>Jam Masuk (Hari Ini)</span>
             <strong id="jamMasuk" style="color: var(--primary);">--:--</strong>
           </div>
           <div class="riwayat-item">
-            <span>Jam Pulang</span>
+            <span>Jam Pulang (Hari Ini)</span>
             <strong id="jamPulang" style="color: var(--primary);">--:--</strong>
           </div>
         </div>
@@ -317,6 +349,32 @@
         <button onclick="kirimAbsen()">KIRIM DATA PRESENSI</button>
       </div>
 
+      <div class="card app-page" id="view-page-riwayat">
+        <h3>Pencarian Riwayat Bulanan</h3>
+        
+        <label for="filterBulan">Pilih Bulan & Tahun</label>
+        <input type="month" id="filterBulan" onchange="loadRiwayatBulanan()">
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Tanggal</th>
+                <th>Jenis</th>
+                <th class="text-center">Jam Masuk</th>
+                <th class="text-center">Jam Pulang</th>
+                <th>Terlambat</th>
+              </tr>
+            </thead>
+            <tbody id="tabelRiwayatBody">
+              <tr>
+                <td colspan="5" class="text-center" style="color: #a0aec0; padding: 20px;">Silakan pilih bulan terlebih dahulu.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="card app-page" id="view-page-password">
         <h3>Formulir Ubah Password</h3>
         
@@ -334,14 +392,12 @@
   </div>
 
   <script>
-    // URL DEPLOYMENT WEB APP GOOGLE APPS SCRIPT
     const API = "https://script.google.com/macros/s/AKfycbwx1pMmMPnnrjZUBWDAqvD76kV1blXAA74u6R6G4nT5U-txQdHUZyP6en7WZNkBHLIROQ/exec";
 
     let pegawaiLogin = null;
     let fotoBase64 = null;
     let localStream = null;
     
-    // Konfigurasi Session Timeout (10 Menit = 600000 ms)
     const TIMEOUT_IN_MS = 10 * 60 * 1000; 
     let sessionTimeoutTimer = null;
 
@@ -354,15 +410,33 @@
     // =====================================================
     function switchPage(pageName) {
       document.getElementById("view-page-absen").style.display = "none";
+      document.getElementById("view-page-riwayat").style.display = "none";
       document.getElementById("view-page-password").style.display = "none";
       
       document.getElementById("btn-nav-absen").classList.remove("active");
+      document.getElementById("btn-nav-riwayat").classList.remove("active");
       document.getElementById("btn-nav-password").classList.remove("active");
+
+      // Stop kamera jika tidak di halaman absen demi menghemat baterai HP user
+      if(pageName !== 'absen' && localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+        localStream = null;
+      }
 
       if (pageName === 'absen') {
         document.getElementById("view-page-absen").style.display = "block";
         document.getElementById("btn-nav-absen").classList.add("active");
         if(!localStream) startCamera();
+      } else if (pageName === 'riwayat') {
+        document.getElementById("view-page-riwayat").style.display = "block";
+        document.getElementById("btn-nav-riwayat").classList.add("active");
+        // Otomatis set input bulan ke bulan berjalan jika masih kosong
+        if(!document.getElementById("filterBulan").value) {
+          const kini = new Date();
+          const bln = String(kini.getMonth() + 1).padStart(2, '0');
+          document.getElementById("filterBulan").value = `${kini.getFullYear()}-${bln}`;
+          loadRiwayatBulanan();
+        }
       } else if (pageName === 'password') {
         document.getElementById("view-page-password").style.display = "block";
         document.getElementById("btn-nav-password").classList.add("active");
@@ -421,7 +495,7 @@
         document.getElementById("view-main-app").style.display = "block";
         switchPage('absen');
 
-        await loadRiwayat();
+        await loadRiwayatHariIni();
         startSessionTracker();
 
       } catch(err) {
@@ -462,9 +536,9 @@
     }
 
     // =====================================================
-    // LOAD DATA RIWAYAT
+    // LOAD RIWAYAT HARI INI
     // =====================================================
-    async function loadRiwayat() {
+    async function loadRiwayatHariIni() {
       try {
         const res = await fetch(`${API}?mode=riwayat&nip=${pegawaiLogin.nip}`);
         const data = await res.json();
@@ -474,6 +548,47 @@
         }
       } catch(e) {
         console.error("Gagal menarik riwayat presensi terbaru.");
+      }
+    }
+
+    // =====================================================
+    // LOAD RIWAYAT BULANAN (TABEL)
+    // =====================================================
+    async function loadRiwayatBulanan() {
+      const bulan = document.getElementById("filterBulan").value;
+      if(!bulan) return;
+
+      showLoading(true);
+      const tbody = document.getElementById("tabelRiwayatBody");
+      tbody.innerHTML = `<tr><td colspan="5" class="text-center" style="color: #718096;">Mengambil data riwayat...</td></tr>`;
+
+      try {
+        const res = await fetch(`${API}?mode=riwayat_bulanan&nip=${pegawaiLogin.nip}&bulan=${bulan}`);
+        const data = await res.json();
+
+        if (data.result === "success") {
+          tbody.innerHTML = "";
+          if (data.data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center" style="color: var(--danger); padding:15px;">Tidak ditemukan data absensi pada bulan ini.</td></tr>`;
+            return;
+          }
+
+          data.data.forEach(item => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${item.tanggal}</td>
+              <td><strong>${item.jenis}</strong></td>
+              <td class="text-center" style="color: var(--primary); font-weight:600;">${item.jamMasuk}</td>
+              <td class="text-center" style="color: #3182ce; font-weight:600;">${item.jamPulang}</td>
+              <td style="color: ${item.keterangan !== '0' ? 'var(--danger)' : 'inherit'}">${item.keterangan === '0' ? 'Tepat Waktu' : item.keterangan}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center" style="color: var(--danger);">Gagal memproses data: ${e.message}</td></tr>`;
+      } finally {
+        showLoading(false);
       }
     }
 
@@ -498,8 +613,6 @@
     function ambilFoto() {
       const video = document.getElementById("video");
       const canvas = document.createElement("canvas");
-      
-      // Mengunci resolusi berdasarkan aspek rasio murni kamera
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       
@@ -564,7 +677,7 @@
         document.getElementById("alamat").value = "";
         ulangFoto();
         
-        await loadRiwayat();
+        await loadRiwayatHariIni();
 
       } catch(err) {
         alert(err.message);
@@ -619,6 +732,8 @@
       document.getElementById("loginPassword").value = "";
       document.getElementById("passwordLama").value = "";
       document.getElementById("passwordBaru").value = "";
+      document.getElementById("filterBulan").value = "";
+      document.getElementById("tabelRiwayatBody").innerHTML = `<tr><td colspan="5" class="text-center" style="color: #a0aec0; padding: 20px;">Silakan pilih bulan terlebih dahulu.</td></tr>`;
       
       document.getElementById("view-main-app").style.display = "none";
       document.getElementById("view-login").style.display = "block";
