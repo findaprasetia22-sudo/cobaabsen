@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DASHBOARD MONITORING ADMIN - KPU</title>
+  <style>
+    :root {
+      --admin-color: #2b6cb0;
+      --admin-dark: #1a365d;
+      --bg-gradient: linear-gradient(135deg, #2b6cb0 0%, #1a365d 100%);
+      --gray-light: #f7fafc;
+      --text-dark: #2d3748;
+      --success: #38a169;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      color: #fff;
+      padding: 20px;
+    }
+
+    .container { max-width: 1000px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 25px; }
+    header h1 { font-size: 26px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    
+    .nav-menu { display: flex; gap: 10px; margin-bottom: 20px; }
+    .nav-item {
+      flex: 1; padding: 14px; background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.2); border-radius: 10px;
+      text-align: center; font-weight: bold; cursor: pointer; transition: all 0.2s;
+    }
+    .nav-item.active { background: #fff; color: var(--admin-color); }
+
+    .card {
+      background: #ffffff; color: var(--text-dark);
+      padding: 25px; border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2); margin-bottom: 20px;
+    }
+    h3 { color: var(--admin-color); margin-bottom: 15px; text-transform: uppercase; border-bottom: 2px solid #edf2f7; padding-bottom: 5px; }
+    
+    label { font-size: 13px; font-weight: 600; color: #4a5568; display: block; margin-top: 10px; margin-bottom: 5px; }
+    select, input, textarea {
+      width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 15px; outline: none; background: var(--gray-light);
+    }
+    select:focus, input:focus { border-color: var(--admin-color); background: #fff; }
+
+    .filter-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
+    button {
+      width: 100%; padding: 14px; background: var(--admin-color); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px;
+    }
+    button:hover { background: var(--admin-dark); }
+    
+    /* Tabel Styles */
+    .table-responsive { width: 100%; overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 10px; background: white; margin-top: 15px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { background: var(--admin-color); color: white; padding: 12px; font-weight: 600; text-align: left; white-space: nowrap; }
+    td { padding: 12px; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
+    tr:nth-child(even) { background: #f8fafc; }
+    
+    .btn-foto {
+      padding: 6px 12px; background: #e2e8f0; color: var(--text-dark); border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600; display: inline-block;
+    }
+    .btn-foto:hover { background: var(--admin-color); color: white; }
+
+    .loading-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 9999; font-weight: bold;
+    }
+    
+    .view-panel { display: none; }
+    .view-panel.active { display: block; }
+  </style>
+</head>
+<body>
+
+  <div class="loading-overlay" id="loading">Memproses Data Eksternal... Mohon Tunggu...</div>
+
+  <div class="container">
+    <header>
+      <h1>PANEL MONITORING KPU (ADMIN)</h1>
+      <p>Pusat Rekapitulasi Data Kehadiran dan Manajemen Izin Pegawai</p>
+    </header>
+
+    <div class="nav-menu">
+      <div class="nav-item active" id="tab-laporan" onclick="switchAdminTab('laporan')">📊 Dashboard Laporan</div>
+      <div class="nav-item" id="tab-input" onclick="switchAdminTab('input')">✍️ Input Cuti / Izin Manual</div>
+    </div>
+
+    <div class="card view-panel active" id="panel-laporan">
+      <h3>Saringan Data Rekapitulasi</h3>
+      
+      <label for="filterType">Metode Penarikan</label>
+      <select id="filterType" onchange="toggleFilterFields()">
+        <option value="harian">Laporan Harian</option>
+        <option value="bulanan">Laporan Bulanan</option>
+        <option value="custom">Kustom Rentang Tanggal (Custom Date)</option>
+      </select>
+
+      <div class="filter-group" style="margin-top:10px;">
+        <div id="div-tglAwal">
+          <label id="lbl-tglAwal">Pilih Tanggal</label>
+          <input type="date" id="filterTglAwal">
+        </div>
+        <div id="div-tglAkhir" style="display:none;">
+          <label>Sampai Tanggal</label>
+          <input type="date" id="filterTglAkhir">
+        </div>
+        <div id="div-bulan" style="display:none;">
+          <label>Pilih Bulan & Tahun</label>
+          <input type="month" id="filterBulan">
+        </div>
+      </div>
+
+      <button onclick="tarikLaporanAdmin()">PROSES DATA REKAP</button>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>NIP</th>
+              <th>Nama Pegawai</th>
+              <th>Status</th>
+              <th>Jam Masuk</th>
+              <th>Jam Pulang</th>
+              <th>Foto Masuk</th>
+              <th>Foto Pulang</th>
+            </tr>
+          </thead>
+          <tbody id="bodyLaporanAdmin">
+            <tr>
+              <td colspan="8" style="text-align:center; color:#a0aec0; padding:20px;">Silakan tentukan saringan data lalu klik Proses.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card view-panel" id="panel-input">
+      <h3>Formulir Input Ketidakhadiran Pegawai</h3>
+      
+      <label for="inputPegawai">Pilih Pegawai</label>
+      <select id="inputPegawai">
+        <option value="">-- Pilih Pegawai --</option>
+      </select>
+
+      <label for="inputTanggal">Pilih Tanggal Berlaku</label>
+      <input type="date" id="inputTanggal">
+
+      <label for="inputJenis">Status Ketidakhadiran</label>
+      <select id="inputJenis">
+        <option value="CUTI">CUTI</option>
+        <option value="IJIN">IJIN (Keperluan Dinas/Pribadi)</option>
+        <option value="SAKIT">SAKIT (Dengan Surat Dokter)</option>
+      </select>
+
+      <label for="inputKeterangan">Keterangan Tambahan / Alasan</label>
+      <textarea id="inputKeterangan" placeholder="Contoh: Cuti Tahunan Gelombang 1 / Sakit Demam Berdarah..."></textarea>
+
+      <button onclick="kirimManualAdmin()" style="background: var(--success);">SIMPAN DATA ABSENSI</button>
+    </div>
+  </div>
+
+  <script>
+    // URL DEPLOYMENT WEB APP GOOGLE APPS SCRIPT ANDA
+    const API = "https://script.google.com/macros/s/AKfycbwx1pMmMPnnrjZUBWDAqvD76kV1blXAA74u6R6G4nT5U-txQdHUZyP6en7WZNkBHLIROQ/exec";
+    
+    let daftarPegawaiCache = [];
+
+    function showLoading(show) {
+      document.getElementById('loading').style.display = show ? 'flex' : 'none';
+    }
+
+    function switchAdminTab(target) {
+      document.getElementById('panel-laporan').classList.remove('active');
+      document.getElementById('panel-input').classList.remove('active');
+      document.getElementById('tab-laporan').classList.remove('active');
+      document.getElementById('tab-input').classList.remove('active');
+
+      if (target === 'laporan') {
+        document.getElementById('panel-laporan').classList.add('active');
+        document.getElementById('tab-laporan').classList.add('active');
+      } else {
+        document.getElementById('panel-input').classList.add('active');
+        document.getElementById('tab-input').classList.add('active');
+        if(daftarPegawaiCache.length === 0) muatDaftarPegawaiAdmin();
+      }
+    }
+
+    function toggleFilterFields() {
+      const type = document.getElementById("filterType").value;
+      document.getElementById("div-tglAwal").style.display = (type === "harian" || type === "custom") ? "block" : "none";
+      document.getElementById("div-tglAkhir").style.display = (type === "custom") ? "block" : "none";
+      document.getElementById("div-bulan").style.display = (type === "bulanan") ? "block" : "none";
+      document.getElementById("lbl-tglAwal").innerText = type === "custom" ? "Dari Tanggal" : "Pilih Tanggal";
+    }
+
+    // Mengambil master data pegawai untuk dropdown form manual admin
+    async function muatDaftarPegawaiAdmin() {
+      showLoading(true);
+      try {
+        const res = await fetch(API);
+        const data = await res.json();
+        if(data.result === "success") {
+          daftarPegawaiCache = data.pegawai;
+          const select = document.getElementById("inputPegawai");
+          select.innerHTML = '<option value="">-- Pilih Pegawai --</option>';
+          daftarPegawaiCache.forEach(p => {
+            const opt = document.createElement("option");
+            opt.value = p.nip;
+            opt.textContent = `${p.nama} (${p.nip})`;
+            select.appendChild(opt);
+          });
+        }
+      } catch(e) {
+        alert("Gagal memuat master pegawai: " + e.message);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // Menarik Rekapitulasi Laporan Kehadiran Berdasarkan Filter
+    async function tarikLaporanAdmin() {
+      const type = document.getElementById("filterType").value;
+      const tglAwal = document.getElementById("filterTglAwal").value;
+      const tglAkhir = document.getElementById("filterTglAkhir").value;
+      const bulan = document.getElementById("filterBulan").value;
+
+      let paramQuery = `?mode=admin_laporan&type=${type}`;
+      if(type === "harian") {
+        if(!tglAwal) return alert("Pilih tanggal terlebih dahulu!");
+        paramQuery += `&tglAwal=${tglAwal}`;
+      } else if(type === "bulanan") {
+        if(!bulan) return alert("Pilih bulan terlebih dahulu!");
+        paramQuery += `&bulan=${bulan}`;
+      } else if(type === "custom") {
+        if(!tglAwal || !tglAkhir) return alert("Lengkapi rentang tanggal!");
+        paramQuery += `&tglAwal=${tglAwal}&tglAkhir=${tglAkhir}`;
+      }
+
+      showLoading(true);
+      const tbody = document.getElementById("bodyLaporanAdmin");
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Sedang menarik dan menyusun data...</td></tr>';
+
+      try {
+        const res = await fetch(API + paramQuery);
+        const data = await res.json();
+        
+        if(data.result === "success") {
+          tbody.innerHTML = "";
+          if(data.data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:red; padding:15px;">Data kosong atau tidak ditemukan rekaman absen pada periode ini.</td></tr>';
+            return;
+          }
+          
+          data.data.forEach(item => {
+            const tr = document.createElement("tr");
+            const linkFotoMasuk = item.fotoMasuk ? `<a href="${item.fotoMasuk}" target="_blank" class="btn-foto">👁️ LIHAT FOTO</a>` : "-";
+            const linkFotoPulang = item.fotoPulang ? `<a href="${item.fotoPulang}" target="_blank" class="btn-foto">👁️ LIHAT FOTO</a>` : "-";
+            
+            tr.innerHTML = `
+              <td>${item.tanggal}</td>
+              <td>${item.nip}</td>
+              <td><strong>${item.nama}</strong></td>
+              <td><span style="padding:4px 8px; border-radius:5px; font-weight:bold; background-color:${item.jenis === 'WFO' ? '#vbc0bf':'#edf2f7'}">${item.jenis}</span></td>
+              <td>${item.jamMasuk}</td>
+              <td>${item.jamPulang}</td>
+              <td>${linkFotoMasuk}</td>
+              <td>${linkFotoPulang}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+      } catch(e) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:red;">Gagal memuat: ${e.message}</td></tr>`;
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // Submit data Cuti/Izin oleh Admin ke Spreadsheet (POST)
+    async function kirimManualAdmin() {
+      const nip = document.getElementById("inputPegawai").value;
+      const tanggal = document.getElementById("inputTanggal").value;
+      const jenis = document.getElementById("inputJenis").value;
+      const keterangan = document.getElementById("inputKeterangan").value;
+
+      if(!nip || !tanggal || !jenis) {
+        alert("Harap lengkapi Pegawai, Tanggal, dan Status Absen!");
+        return;
+      }
+
+      const pegawaiTerpilih = daftarPegawaiCache.find(p => p.nip === nip);
+      
+      showLoading(true);
+      try {
+        const form = new FormData();
+        form.append("isAdminInput", "true");
+        form.append("nip", nip);
+        form.append("nama", pegawaiTerpilih.nama);
+        form.append("jabatan", pegawaiTerpilih.jabatan);
+        form.append("atasan", pegawaiTerpilih.atasan);
+        form.append("tanggal", tanggal);
+        form.append("jenis", jenis);
+        form.append("keterangan", keterangan);
+
+        const res = await fetch(API, { method: "POST", body: form });
+        const data = await res.json();
+        
+        if(data.result === "success") {
+          alert(data.message);
+          document.getElementById("inputTanggal").value = "";
+          document.getElementById("inputKeterangan").value = "";
+          document.getElementById("inputPegawai").value = "";
+        } else {
+          throw new Error(data.message);
+        }
+      } catch(e) {
+        alert("Gagal menyimpan data: " + e.message);
+      } finally {
+        showLoading(false);
+      }
+    }
+  </script>
+</body>
+</html>
