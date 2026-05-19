@@ -1,17 +1,22 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Absensi KPU Kota Malang</title>
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>ABSENSI KPU</title>
 
 <style>
 
 body{
   margin:0;
   padding:20px;
-  font-family:Arial;
   background:#15834f;
+  font-family:Arial;
   color:white;
 }
 
@@ -20,15 +25,16 @@ body{
   margin:auto;
 }
 
-h1{
-  text-align:center;
-}
-
 .card{
   background:white;
   color:black;
   padding:20px;
   border-radius:20px;
+  margin-bottom:20px;
+}
+
+h1,h2,h3{
+  text-align:center;
 }
 
 select,
@@ -38,7 +44,7 @@ button{
   width:100%;
   padding:15px;
   margin-top:10px;
-  margin-bottom:20px;
+  margin-bottom:15px;
   border-radius:10px;
   border:none;
   font-size:16px;
@@ -54,10 +60,16 @@ video,
 img{
   width:100%;
   border-radius:20px;
-  background:#000;
+  background:black;
+}
+
+.info{
+  text-align:center;
+  font-weight:bold;
 }
 
 </style>
+
 </head>
 
 <body>
@@ -66,13 +78,58 @@ img{
 
 <h1>ABSENSI KPU KOTA MALANG</h1>
 
+<!-- LOGIN -->
+
 <div class="card">
 
-<select id="nama">
+<h2>LOGIN</h2>
+
+<select id="loginNama">
 <option value="">Pilih Nama</option>
 </select>
 
-<input type="text" id="nip" placeholder="NIP" readonly>
+<input
+type="password"
+id="loginPassword"
+placeholder="Password">
+
+<button onclick="loginPegawai()">
+LOGIN
+</button>
+
+</div>
+
+<!-- RIWAYAT -->
+
+<div
+class="card"
+id="riwayatBox"
+style="display:none;">
+
+<h3>RIWAYAT HARI INI</h3>
+
+<p>
+JAM MASUK :
+<b id="jamMasuk">
+BELUM ABSEN MASUK
+</b>
+</p>
+
+<p>
+JAM PULANG :
+<b id="jamPulang">
+BELUM ABSEN PULANG
+</b>
+</p>
+
+</div>
+
+<!-- ABSEN -->
+
+<div
+class="card"
+id="absenBox"
+style="display:none;">
 
 <select id="jenis">
 <option value="WFO">WFO</option>
@@ -81,15 +138,30 @@ img{
 <option value="CUTI">CUTI</option>
 </select>
 
-<textarea id="uraian" placeholder="Uraian tugas"></textarea>
+<textarea
+id="uraian"
+placeholder="Uraian tugas">
+</textarea>
 
-<textarea id="output" placeholder="Output kerja"></textarea>
+<textarea
+id="output"
+placeholder="Output kerja">
+</textarea>
 
-<textarea id="alamat" placeholder="Alamat"></textarea>
+<textarea
+id="alamat"
+placeholder="Alamat">
+</textarea>
 
-<video id="video" autoplay playsinline></video>
+<video
+id="video"
+autoplay
+playsinline>
+</video>
 
-<img id="preview" style="display:none;">
+<img
+id="preview"
+style="display:none;">
 
 <button onclick="ambilFoto()">
 AMBIL FOTO
@@ -99,9 +171,38 @@ AMBIL FOTO
 KIRIM ABSEN
 </button>
 
-<div id="info"></div>
+</div>
+
+<!-- PASSWORD -->
+
+<div
+class="card"
+id="passwordBox"
+style="display:none;">
+
+<h3>UBAH PASSWORD</h3>
+
+<input
+type="password"
+id="passwordLama"
+placeholder="Password Lama">
+
+<input
+type="password"
+id="passwordBaru"
+placeholder="Password Baru">
+
+<button onclick="ubahPassword()">
+UBAH PASSWORD
+</button>
 
 </div>
+
+<div
+class="info"
+id="info">
+</div>
+
 </div>
 
 <script>
@@ -110,105 +211,241 @@ const API =
 "https://script.google.com/macros/s/AKfycbwx1pMmMPnnrjZUBWDAqvD76kV1blXAA74u6R6G4nT5U-txQdHUZyP6en7WZNkBHLIROQ/exec";
 
 let pegawai = [];
+
+let pegawaiLogin = null;
+
 let fotoBase64 = null;
 
-const nama = document.getElementById("nama");
-const nip = document.getElementById("nip");
-
-const video = document.getElementById("video");
-const preview = document.getElementById("preview");
-
-const info = document.getElementById("info");
+// =====================================================
+// INIT
+// =====================================================
 
 async function init(){
 
-  const res = await fetch(API);
+  const res =
+  await fetch(API);
 
-  const data = await res.json();
+  const data =
+  await res.json();
 
-  pegawai = data.pegawai || [];
+  pegawai =
+  data.pegawai || [];
+
+  const select =
+  document.getElementById(
+    "loginNama"
+  );
 
   pegawai.forEach(p=>{
 
-    const opt = document.createElement("option");
+    const opt =
+    document.createElement(
+      "option"
+    );
 
     opt.value = p.nama;
-    opt.textContent = p.nama;
 
-    nama.appendChild(opt);
+    opt.textContent =
+    p.nama;
+
+    select.appendChild(opt);
 
   });
 
-  startCamera();
 }
 
-nama.addEventListener("change", ()=>{
+init();
 
-  const p = pegawai.find(x=>x.nama===nama.value);
+// =====================================================
+// LOGIN
+// =====================================================
 
-  if(!p){
-    nip.value = "";
-    return;
+async function loginPegawai(){
+
+  try{
+
+    const nama =
+    document.getElementById(
+      "loginNama"
+    ).value;
+
+    const password =
+    document.getElementById(
+      "loginPassword"
+    ).value;
+
+    const res =
+    await fetch(
+      API +
+      "?mode=login" +
+      "&nama=" +
+      encodeURIComponent(nama) +
+      "&password=" +
+      encodeURIComponent(password)
+    );
+
+    const data =
+    await res.json();
+
+    if(data.result==="error"){
+      throw new Error(
+        data.message
+      );
+    }
+
+    pegawaiLogin = data;
+
+    document.getElementById(
+      "riwayatBox"
+    ).style.display =
+    "block";
+
+    document.getElementById(
+      "absenBox"
+    ).style.display =
+    "block";
+
+    document.getElementById(
+      "passwordBox"
+    ).style.display =
+    "block";
+
+    await loadRiwayat();
+
+    startCamera();
+
+    alert("Login berhasil");
+
+  }catch(err){
+
+    alert(err.message);
+
   }
 
-  nip.value = p.nip || "";
+}
 
-});
+// =====================================================
+// RIWAYAT
+// =====================================================
+
+async function loadRiwayat(){
+
+  const res =
+  await fetch(
+    API +
+    "?mode=riwayat&nip=" +
+    pegawaiLogin.nip
+  );
+
+  const data =
+  await res.json();
+
+  document.getElementById(
+    "jamMasuk"
+  ).innerText =
+  data.jamMasuk;
+
+  document.getElementById(
+    "jamPulang"
+  ).innerText =
+  data.jamPulang;
+
+}
+
+// =====================================================
+// CAMERA
+// =====================================================
 
 async function startCamera(){
 
   const stream =
-  await navigator.mediaDevices.getUserMedia({
+  await navigator
+  .mediaDevices
+  .getUserMedia({
     video:true,
     audio:false
   });
 
-  video.srcObject = stream;
+  document
+  .getElementById(
+    "video"
+  ).srcObject =
+  stream;
+
 }
+
+// =====================================================
+// FOTO
+// =====================================================
 
 function ambilFoto(){
 
+  const video =
+  document.getElementById(
+    "video"
+  );
+
   const canvas =
-  document.createElement("canvas");
+  document.createElement(
+    "canvas"
+  );
 
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
+  canvas.width =
+  video.videoWidth;
 
-  const ctx = canvas.getContext("2d");
+  canvas.height =
+  video.videoHeight;
+
+  const ctx =
+  canvas.getContext("2d");
 
   ctx.drawImage(
     video,
     0,
-    0,
-    canvas.width,
-    canvas.height
+    0
   );
 
   fotoBase64 =
-  canvas.toDataURL("image/png");
+  canvas.toDataURL(
+    "image/png"
+  );
 
-  preview.src = fotoBase64;
+  const preview =
+  document.getElementById(
+    "preview"
+  );
 
-  preview.style.display = "block";
+  preview.src =
+  fotoBase64;
 
-  video.style.display = "none";
+  preview.style.display =
+  "block";
+
+  video.style.display =
+  "none";
+
 }
+
+// =====================================================
+// ABSEN
+// =====================================================
 
 async function kirimAbsen(){
 
   try{
 
-    if(!nama.value){
-      alert("Pilih nama");
-      return;
-    }
-
     if(!fotoBase64){
-      alert("Ambil foto dulu");
+
+      alert(
+        "Ambil foto dulu"
+      );
+
       return;
+
     }
 
-    const now = new Date();
+    const now =
+    new Date();
 
     const jam =
     now.toLocaleTimeString(
@@ -217,7 +454,8 @@ async function kirimAbsen(){
         hour12:false,
         hour:"2-digit",
         minute:"2-digit",
-        timeZone:"Asia/Jakarta"
+        timeZone:
+        "Asia/Jakarta"
       }
     );
 
@@ -226,62 +464,176 @@ async function kirimAbsen(){
     ? "MASUK"
     : "PULANG";
 
-    const form = new FormData();
+    const form =
+    new FormData();
 
-    form.append("nama", nama.value);
-    form.append("nip", nip.value);
+    form.append(
+      "nama",
+      pegawaiLogin.nama
+    );
+
+    form.append(
+      "nip",
+      pegawaiLogin.nip
+    );
 
     form.append(
       "jenis",
-      document.getElementById("jenis").value
+      document.getElementById(
+        "jenis"
+      ).value
     );
 
-    form.append("status", status);
+    form.append(
+      "status",
+      status
+    );
 
-    form.append("jam", jam);
+    form.append(
+      "jam",
+      jam
+    );
 
-    form.append("foto", fotoBase64);
+    form.append(
+      "foto",
+      fotoBase64
+    );
+
+    form.append(
+      "jabatan",
+      pegawaiLogin.jabatan
+    );
+
+    form.append(
+      "atasan",
+      pegawaiLogin.atasan
+    );
 
     form.append(
       "uraian_tugas",
-      document.getElementById("uraian").value
+      document.getElementById(
+        "uraian"
+      ).value
     );
 
     form.append(
       "output",
-      document.getElementById("output").value
+      document.getElementById(
+        "output"
+      ).value
     );
 
     form.append(
       "alamat",
-      document.getElementById("alamat").value
+      document.getElementById(
+        "alamat"
+      ).value
     );
 
     const res =
-    await fetch(API,{
-      method:"POST",
-      body:form
-    });
+    await fetch(
+      API,
+      {
+        method:"POST",
+        body:form
+      }
+    );
 
     const data =
     await res.json();
 
     if(data.result==="error"){
-      throw new Error(data.message);
+
+      throw new Error(
+        data.message
+      );
+
     }
 
-    alert("Absensi berhasil");
+    alert(
+      "Absensi berhasil"
+    );
 
-    location.reload();
+    fotoBase64 = null;
+
+    document.getElementById(
+      "preview"
+    ).style.display =
+    "none";
+
+    document.getElementById(
+      "video"
+    ).style.display =
+    "block";
+
+    loadRiwayat();
 
   }catch(err){
 
     alert(err.message);
 
   }
+
 }
 
-init();
+// =====================================================
+// PASSWORD
+// =====================================================
+
+async function ubahPassword(){
+
+  try{
+
+    const passwordLama =
+    document.getElementById(
+      "passwordLama"
+    ).value;
+
+    const passwordBaru =
+    document.getElementById(
+      "passwordBaru"
+    ).value;
+
+    const res =
+    await fetch(
+      API +
+      "?mode=ubahpassword" +
+      "&nama=" +
+      encodeURIComponent(
+        pegawaiLogin.nama
+      ) +
+      "&password_lama=" +
+      encodeURIComponent(
+        passwordLama
+      ) +
+      "&password_baru=" +
+      encodeURIComponent(
+        passwordBaru
+      )
+    );
+
+    const data =
+    await res.json();
+
+    if(data.result==="error"){
+
+      throw new Error(
+        data.message
+      );
+
+    }
+
+    alert(
+      "Password berhasil diubah"
+    );
+
+  }catch(err){
+
+    alert(err.message);
+
+  }
+
+}
 
 </script>
 
