@@ -159,21 +159,21 @@
     }
     button.danger:hover { background: #c53030; }
 
-    /* Kamera Area */
+    /* Kamera Area (PERBAIKAN AGAR TIDAK TERPOTONG) */
     .camera-box {
       position: relative;
       width: 100%;
       border-radius: 12px;
       overflow: hidden;
-      background: #000;
+      background: #222; /* Latar belakang gelap jika aspek rasio berbeda */
       margin-top: 15px;
-      aspect-ratio: 4 / 3;
     }
 
-    video, img #preview {
+    video, img {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
+      height: auto;
+      display: block;
+      object-fit: contain; /* PERBAIKAN UTAMA: Menggunakan contain agar wajah masuk utuh */
     }
 
     /* Info Profil & Riwayat Box */
@@ -234,7 +234,6 @@
 </head>
 <body>
 
-  <!-- LOADING SPINNER OVERLAY -->
   <div class="loading-overlay" id="loading">Memproses data... Mohon tunggu sebentar...</div>
 
   <div class="container">
@@ -243,7 +242,6 @@
       <p>Sistem Aplikasi Absensi Selfie Digital</p>
     </header>
 
-    <!-- ================= 1. VIEW LOGIN ================= -->
     <div class="card app-page" id="view-login">
       <h2>Pintu Masuk Pegawai</h2>
       
@@ -259,16 +257,13 @@
     </div>
 
 
-    <!-- ================= PANELS SETELAH LOGIN SUKSES ================= -->
     <div id="view-main-app">
       
-      <!-- MENU NAVIGASI HALAMAN -->
       <div class="nav-menu">
         <div class="nav-item active" id="btn-nav-absen" onclick="switchPage('absen')">📝 Presensi</div>
         <div class="nav-item" id="btn-nav-password" onclick="switchPage('password')">🔒 Ubah Password</div>
       </div>
 
-      <!-- RINGKASAN PROFIL & RIWAYAT (SELALU MUNCUL DI ATAS FORM) -->
       <div class="card">
         <h3>Riwayat Kehadiran Hari Ini</h3>
         <div class="profile-info">
@@ -290,7 +285,6 @@
         <button class="secondary" onclick="logout()">Keluar Aplikasi</button>
       </div>
 
-      <!-- ================= 2. VIEW UTAMA (FORM ABSEN) ================= -->
       <div class="card app-page" id="view-page-absen" style="display: block;">
         <h3>Isi Formulir Absen</h3>
         
@@ -323,7 +317,6 @@
         <button onclick="kirimAbsen()">KIRIM DATA PRESENSI</button>
       </div>
 
-      <!-- ================= 3. VIEW UBAH PASSWORD ================= -->
       <div class="card app-page" id="view-page-password">
         <h3>Formulir Ubah Password</h3>
         
@@ -360,19 +353,15 @@
     // ATUR HALAMAN (SWITCH TAB PAGE)
     // =====================================================
     function switchPage(pageName) {
-      // Sembunyikan semua page internal aplikasi
       document.getElementById("view-page-absen").style.display = "none";
       document.getElementById("view-page-password").style.display = "none";
       
-      // Hapus kelas aktif di tombol menu
       document.getElementById("btn-nav-absen").classList.remove("active");
       document.getElementById("btn-nav-password").classList.remove("active");
 
-      // Aktifkan page terpilih
       if (pageName === 'absen') {
         document.getElementById("view-page-absen").style.display = "block";
         document.getElementById("btn-nav-absen").classList.add("active");
-        // Re-start kamera jika sempat terhenti saat pindah halaman
         if(!localStream) startCamera();
       } else if (pageName === 'password') {
         document.getElementById("view-page-password").style.display = "block";
@@ -424,19 +413,15 @@
 
         pegawaiLogin = data;
         
-        // Render data profil user
         document.getElementById("profNama").innerText = "Nama: " + pegawaiLogin.nama;
         document.getElementById("profNip").innerText = "NIP: " + pegawaiLogin.nip;
         document.getElementById("profJabatan").innerText = "Jabatan: " + pegawaiLogin.jabatan;
 
-        // Buka dashboard utama
         document.getElementById("view-login").style.display = "none";
         document.getElementById("view-main-app").style.display = "block";
         switchPage('absen');
 
         await loadRiwayat();
-        
-        // Aktifkan Pengawasan Sesi (Session Timeout)
         startSessionTracker();
 
       } catch(err) {
@@ -450,7 +435,7 @@
     // PENGAWASAN SESSION TIMEOUT (10 MENIT)
     // =====================================================
     function resetSessionTimer() {
-      if (!pegawaiLogin) return; // Tidak berjalan jika belum login
+      if (!pegawaiLogin) return; 
       clearTimeout(sessionTimeoutTimer);
       sessionTimeoutTimer = setTimeout(() => {
         alert("Sesi Anda telah berakhir (10 Menit tanpa aktivitas). Silakan login kembali.");
@@ -460,7 +445,6 @@
 
     function startSessionTracker() {
       resetSessionTimer();
-      // Deteksi aktivitas user di browser
       window.addEventListener('mousemove', resetSessionTimer);
       window.addEventListener('keypress', resetSessionTimer);
       window.addEventListener('click', resetSessionTimer);
@@ -514,15 +498,18 @@
     function ambilFoto() {
       const video = document.getElementById("video");
       const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth || 640;
-      canvas.height = video.videoHeight || 480;
+      
+      // Mengunci resolusi berdasarkan aspek rasio murni kamera
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
       
       const ctx = canvas.getContext("2d");
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       fotoBase64 = canvas.toDataURL("image/png");
 
-      document.getElementById("preview").src = fotoBase64;
-      document.getElementById("preview").style.display = "block";
+      const preview = document.getElementById("preview");
+      preview.src = fotoBase64;
+      preview.style.display = "block";
       video.style.display = "none";
       document.getElementById("btnUlangFoto").style.display = "block";
     }
@@ -572,7 +559,6 @@
 
         alert(data.message);
         
-        // Reset field input
         document.getElementById("uraian").value = "";
         document.getElementById("output").value = "";
         document.getElementById("alamat").value = "";
@@ -610,7 +596,7 @@
         alert("Berhasil! Password Akun Anda telah diperbarui.");
         document.getElementById("passwordLama").value = "";
         document.getElementById("passwordBaru").value = "";
-        switchPage('absen'); // Kembalikan ke halaman absen utama
+        switchPage('absen');
 
       } catch(e) {
         alert(e.message);
