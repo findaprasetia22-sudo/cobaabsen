@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Absensi KPU Kota Malang</title>
+
+<style>
+
+body{
+  margin:0;
+  padding:20px;
+  font-family:Arial;
+  background:#15834f;
+  color:white;
+}
+
+.container{
+  max-width:600px;
+  margin:auto;
+}
+
+h1{
+  text-align:center;
+}
+
+.card{
+  background:white;
+  color:black;
+  padding:20px;
+  border-radius:20px;
+}
+
+select,
+input,
+textarea,
+button{
+  width:100%;
+  padding:15px;
+  margin-top:10px;
+  margin-bottom:20px;
+  border-radius:10px;
+  border:none;
+  font-size:16px;
+}
+
+button{
+  background:#15834f;
+  color:white;
+  font-weight:bold;
+}
+
+video,
+img{
+  width:100%;
+  border-radius:20px;
+  background:#000;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>ABSENSI KPU KOTA MALANG</h1>
+
+<div class="card">
+
+<select id="nama">
+<option value="">Pilih Nama</option>
+</select>
+
+<input type="text" id="nip" placeholder="NIP" readonly>
+
+<select id="jenis">
+<option value="WFO">WFO</option>
+<option value="WFH">WFH</option>
+<option value="DL">DL</option>
+<option value="CUTI">CUTI</option>
+</select>
+
+<textarea id="uraian" placeholder="Uraian tugas"></textarea>
+
+<textarea id="output" placeholder="Output kerja"></textarea>
+
+<textarea id="alamat" placeholder="Alamat"></textarea>
+
+<video id="video" autoplay playsinline></video>
+
+<img id="preview" style="display:none;">
+
+<button onclick="ambilFoto()">
+AMBIL FOTO
+</button>
+
+<button onclick="kirimAbsen()">
+KIRIM ABSEN
+</button>
+
+<div id="info"></div>
+
+</div>
+</div>
+
+<script>
+
+const API =
+"https://script.google.com/macros/s/AKfycbwx1pMmMPnnrjZUBWDAqvD76kV1blXAA74u6R6G4nT5U-txQdHUZyP6en7WZNkBHLIROQ/exec";
+
+let pegawai = [];
+let fotoBase64 = null;
+
+const nama = document.getElementById("nama");
+const nip = document.getElementById("nip");
+
+const video = document.getElementById("video");
+const preview = document.getElementById("preview");
+
+const info = document.getElementById("info");
+
+async function init(){
+
+  const res = await fetch(API);
+
+  const data = await res.json();
+
+  pegawai = data.pegawai || [];
+
+  pegawai.forEach(p=>{
+
+    const opt = document.createElement("option");
+
+    opt.value = p.nama;
+    opt.textContent = p.nama;
+
+    nama.appendChild(opt);
+
+  });
+
+  startCamera();
+}
+
+nama.addEventListener("change", ()=>{
+
+  const p = pegawai.find(x=>x.nama===nama.value);
+
+  if(!p){
+    nip.value = "";
+    return;
+  }
+
+  nip.value = p.nip || "";
+
+});
+
+async function startCamera(){
+
+  const stream =
+  await navigator.mediaDevices.getUserMedia({
+    video:true,
+    audio:false
+  });
+
+  video.srcObject = stream;
+}
+
+function ambilFoto(){
+
+  const canvas =
+  document.createElement("canvas");
+
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  const ctx = canvas.getContext("2d");
+
+  ctx.drawImage(
+    video,
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  fotoBase64 =
+  canvas.toDataURL("image/png");
+
+  preview.src = fotoBase64;
+
+  preview.style.display = "block";
+
+  video.style.display = "none";
+}
+
+async function kirimAbsen(){
+
+  try{
+
+    if(!nama.value){
+      alert("Pilih nama");
+      return;
+    }
+
+    if(!fotoBase64){
+      alert("Ambil foto dulu");
+      return;
+    }
+
+    const now = new Date();
+
+    const jam =
+    now.toLocaleTimeString(
+      "id-ID",
+      {
+        hour12:false,
+        hour:"2-digit",
+        minute:"2-digit",
+        timeZone:"Asia/Jakarta"
+      }
+    );
+
+    const status =
+    jam < "12:00"
+    ? "MASUK"
+    : "PULANG";
+
+    const form = new FormData();
+
+    form.append("nama", nama.value);
+    form.append("nip", nip.value);
+
+    form.append(
+      "jenis",
+      document.getElementById("jenis").value
+    );
+
+    form.append("status", status);
+
+    form.append("jam", jam);
+
+    form.append("foto", fotoBase64);
+
+    form.append(
+      "uraian_tugas",
+      document.getElementById("uraian").value
+    );
+
+    form.append(
+      "output",
+      document.getElementById("output").value
+    );
+
+    form.append(
+      "alamat",
+      document.getElementById("alamat").value
+    );
+
+    const res =
+    await fetch(API,{
+      method:"POST",
+      body:form
+    });
+
+    const data =
+    await res.json();
+
+    if(data.result==="error"){
+      throw new Error(data.message);
+    }
+
+    alert("Absensi berhasil");
+
+    location.reload();
+
+  }catch(err){
+
+    alert(err.message);
+
+  }
+}
+
+init();
+
+</script>
+
+</body>
+</html>
