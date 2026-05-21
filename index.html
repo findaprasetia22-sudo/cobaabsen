@@ -241,7 +241,7 @@
       margin-top: 8px;
     }
 
-    /* KUSTOM MODAL NOTIFIKASI */
+    /* MODAL KUSTOM DINAMIS UNTUK SEMUA ALERT */
     .custom-modal-overlay {
       display: none;
       position: fixed;
@@ -249,7 +249,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.65);
+      background: rgba(0, 0, 0, 0.7);
       z-index: 9999;
       justify-content: center;
       align-items: center;
@@ -260,7 +260,7 @@
       background: #ffffff;
       color: #1f2937;
       width: 100%;
-      max-width: 480px;
+      max-width: 500px;
       border-radius: 28px;
       padding: 32px 24px;
       box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
@@ -274,17 +274,21 @@
     }
 
     .custom-modal-title {
-      font-size: 36px; /* Sesuai request: Diperbesar ~1.5x dari teks biasa */
+      font-size: 36px; /* 1.5x lebih besar */
       font-weight: 800; /* Bold tebal */
-      color: #15834f;
       margin-bottom: 16px;
     }
+
+    /* Warna Judul Modal Berdasarkan Tipe */
+    .custom-modal-box.success .custom-modal-title { color: #15834f; }
+    .custom-modal-box.error .custom-modal-title { color: #c73d3d; }
+    .custom-modal-box.warning .custom-modal-title { color: #d97706; }
 
     .custom-modal-message {
       font-size: 22px;
       line-height: 1.5;
       font-weight: 600;
-      color: #4b5563;
+      color: #374151;
       margin-bottom: 28px;
       white-space: pre-wrap;
     }
@@ -294,7 +298,7 @@
       color: #ffffff;
       font-size: 24px;
       font-weight: 800;
-      padding: 16px 32px;
+      padding: 16px 36px;
       border-radius: 18px;
       border: none;
       cursor: pointer;
@@ -419,10 +423,10 @@
   </div>
 
   <div class="custom-modal-overlay" id="customModal">
-    <div class="custom-modal-box">
-      <div class="custom-modal-title" id="modalTitle">Absensi Berhasil</div>
-      <div class="custom-modal-message" id="modalMessage">Detail informasi absensi.</div>
-      <button type="button" class="custom-modal-btn" id="modalBtn" onclick="tutupModalDanReload()">OK</button>
+    <div class="custom-modal-box" id="modalBox">
+      <div class="custom-modal-title" id="modalTitle">Pemberitahuan</div>
+      <div class="custom-modal-message" id="modalMessage">Detail pesan di sini.</div>
+      <button type="button" class="custom-modal-btn" id="modalBtn">OK</button>
     </div>
   </div>
 
@@ -455,10 +459,12 @@
     const closedMessage = document.getElementById("closedMessage");
     const mainFormBox = document.getElementById("mainFormBox");
     
-    // Elemen Modal Kustom
+    // Elemen Kendali Modal Kustom
     const customModal = document.getElementById("customModal");
+    const modalBox = document.getElementById("modalBox");
     const modalTitle = document.getElementById("modalTitle");
     const modalMessage = document.getElementById("modalMessage");
+    const modalBtn = document.getElementById("modalBtn");
 
     function updateNetworkInfo() {
       networkInfo.innerText = navigator.onLine ? "Online" : "Offline";
@@ -466,6 +472,21 @@
 
     window.addEventListener("online", updateNetworkInfo);
     window.addEventListener("offline", updateNetworkInfo);
+
+    // ENGINE UTAMA MODAL KUSTOM (MENGGANTIKAN ALERT JAUH LEBIH BESAR & BOLD)
+    function tampilkanPesan(judul, isiPesan, tipe = "warning", callback = null) {
+      modalBox.className = "custom-modal-box " + tipe;
+      modalTitle.innerText = judul;
+      modalMessage.innerText = isiPesan;
+      customModal.style.display = "flex";
+      
+      modalBtn.onclick = function() {
+        customModal.style.display = "none";
+        if (callback && typeof callback === "function") {
+          callback();
+        }
+      };
+    }
 
     function getConfigTime(key, fallback) {
       const val = String(config[key] || "").trim();
@@ -713,8 +734,8 @@
 
       } catch (err) {
         console.error(err);
-        submitInfo.innerText = "Gagal memuat data: " + err.message;
-        alert("Gagal memuat data:\n" + err.message);
+        submitInfo.innerText = "Gagal memuat data!";
+        tampilkanPesan("Gagal Memuat Data", err.message, "error");
       }
     }
 
@@ -731,7 +752,7 @@
         video.srcObject = stream;
       } catch (err) {
         console.error(err);
-        alert("Kamera tidak bisa diakses: " + err.message);
+        tampilkanPesan("Akses Kamera Gagal", "Kamera tidak bisa diakses: " + err.message, "error");
       }
     }
 
@@ -739,12 +760,12 @@
       resetSessionTimer();
 
       if (!isWebOpenNow()) {
-        alert("Layanan absensi sedang tutup.");
+        tampilkanPesan("Layanan Tutup", "Layanan absensi sedang tutup.", "warning");
         return;
       }
 
       if (!video.srcObject) {
-        alert("Kamera belum siap");
+        tampilkanPesan("Kamera Belum Siap", "Mohon tunggu hingga sistem mendeteksi kamera.", "warning");
         return;
       }
 
@@ -782,8 +803,9 @@
     function resetSessionTimer() {
       clearTimeout(sessionTimer);
       sessionTimer = setTimeout(() => {
-        alert("Session habis karena tidak submit dalam 5 menit. Halaman akan di-refresh.");
-        location.reload();
+        tampilkanPesan("Sesi Berakhir", "Sesi habis karena tidak submit dalam 5 menit. Halaman akan di-refresh.", "error", function() {
+          location.reload();
+        });
       }, SESSION_MS);
     }
 
@@ -792,45 +814,32 @@
       setInterval(updateTampilanStatus, 1000);
     }
 
-    // FUNGSI UNTUK MENAMPILKAN MODAL KUSTOM BARU
-    function tampilkanModalKustom(judul, isiPesan) {
-      modalTitle.innerText = judul;
-      modalMessage.innerText = isiPesan;
-      customModal.style.display = "flex";
-    }
-
-    // FUNGSI SAAT TOMBOL OK DI MODAL KLIK
-    function tutupModalDanReload() {
-      customModal.style.display = "none";
-      location.reload();
-    }
-
     async function kirimAbsen() {
       try {
         resetSessionTimer();
 
         if (!navigator.onLine) {
-          alert("Perangkat sedang offline");
+          tampilkanPesan("Koneksi Terputus", "Perangkat sedang offline. Periksa internet Anda.", "error");
           return;
         }
 
         if (!isWebOpenNow()) {
-          alert("Layanan absensi sedang tutup.");
+          tampilkanPesan("Layanan Tutup", "Layanan absensi sedang tutup.", "warning");
           return;
         }
 
         if (!nama.value) {
-          alert("Silakan pilih nama terlebih dahulu");
+          tampilkanPesan("Validasi Form", "Silakan pilih nama terlebih dahulu.", "warning");
           return;
         }
 
         if (!nip.value) {
-          alert("NIP belum terisi");
+          tampilkanPesan("Validasi Form", "NIP belum terisi otomatis.", "warning");
           return;
         }
 
         if (!fotoBase64) {
-          alert("Silakan ambil foto terlebih dahulu");
+          tampilkanPesan("Validasi Foto", "Silakan ambil foto terlebih dahulu.", "warning");
           return;
         }
 
@@ -838,23 +847,23 @@
 
         if (status === "PULANG") {
           if (!jabatan.value.trim()) {
-            alert("Jabatan kosong");
+            tampilkanPesan("Validasi Form", "Jabatan kosong.", "warning");
             return;
           }
           if (!atasan.value.trim()) {
-            alert("Atasan kosong");
+            tampilkanPesan("Validasi Form", "Atasan kosong.", "warning");
             return;
           }
           if (!uraianTugas.value.trim()) {
-            alert("Uraian tugas wajib diisi");
+            tampilkanPesan("Validasi Form", "Uraian tugas wajib diisi.", "warning");
             return;
           }
           if (!outputKerja.value.trim()) {
-            alert("Output wajib diisi");
+            tampilkanPesan("Validasi Form", "Output wajib diisi.", "warning");
             return;
           }
           if (!alamat.value.trim()) {
-            alert("Alamat wajib diisi");
+            tampilkanPesan("Validasi Form", "Alamat wajib diisi.", "warning");
             return;
           }
         }
@@ -903,32 +912,35 @@
 
         submitInfo.innerText = "Absensi berhasil";
 
-        // MENGGANTI FUNGSI STANDARD ALERT() DENGAN MODAL KUSTOM SANGAT BESAR & BOLD
         if (status === "MASUK") {
           const terlambat = Number(data.terlambat || 0);
 
           if (terlambat > 0 && terlambat <= 59) {
             const rekomendasiPulang = getRekomendasiPulang(terlambat);
-            tampilkanModalKustom(
+            tampilkanPesan(
               "Absensi Berhasil", 
-              "Anda terlambat " + terlambat + " menit.\nRekomendasi jam pulang " + rekomendasiPulang
+              "Anda terlambat " + terlambat + " menit.\nRekomendasi jam pulang " + rekomendasiPulang,
+              "success",
+              function() { location.reload(); }
             );
           } else if (terlambat > 59) {
-            tampilkanModalKustom(
+            tampilkanPesan(
               "Absensi Berhasil", 
-              "Anda melebihi batas waktu keterlambatan."
+              "Anda melebihi batas waktu keterlambatan.",
+              "success",
+              function() { location.reload(); }
             );
           } else {
-            tampilkanModalKustom("Absensi Berhasil", "Data masuk Anda telah aman tersimpan.");
+            tampilkanPesan("Absensi Berhasil", "Data masuk Anda telah aman tersimpan.", "success", function() { location.reload(); });
           }
         } else {
-          tampilkanModalKustom("Absensi Berhasil", "Data pulang Anda telah aman tersimpan.");
+          tampilkanPesan("Absensi Berhasil", "Data pulang Anda telah aman tersimpan.", "success", function() { location.reload(); });
         }
 
       } catch (err) {
         console.error(err);
         submitInfo.innerText = "Gagal: " + err.message;
-        alert("Gagal submit:\n" + err.message);
+        tampilkanPesan("Gagal Submit Absen", err.message, "error");
       }
     }
 
