@@ -1,953 +1,743 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Absensi KPU Kota Malang</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABSENSI KPU KOTA MALANG</title>
   <style>
     :root {
-      --bg-masuk: #15834f;
-      --bg-pulang: #c73d3d;
-      --card: rgba(255, 255, 255, 0.16);
-      --input-bg: #ffffff;
-      --input-text: #1f2937;
-      --label: #ffffff;
-      --muted: rgba(255,255,255,0.95);
-      --warning: #fff3cd;
-      --shadow: 0 8px 20px rgba(0,0,0,0.18);
+      --primary: #15834f;
+      --primary-dark: #0f613a;
+      --bg-gradient: linear-gradient(135deg, #15834f 0%, #0d4f30 100%);
+      --gray-light: #f8f9fa;
+      --text-dark: #2d3748;
+      --danger: #e53e3e;
+      --warning: #dd6b20;
     }
 
     * {
       box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    html, body {
       margin: 0;
       padding: 0;
-      font-family: Arial, sans-serif;
     }
 
     body {
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg-gradient);
       min-height: 100vh;
-      padding: 16px;
-      color: white;
-      transition: background 0.3s ease;
-    }
-
-    body.masuk {
-      background: var(--bg-masuk);
-    }
-
-    body.pulang {
-      background: var(--bg-pulang);
+      color: #ffffff;
+      padding: 20px 15px;
     }
 
     .container {
-      width: 100%;
-      max-width: 620px;
+      max-width: 600px;
       margin: 0 auto;
     }
 
-    .page-title {
-      font-size: 34px;
-      line-height: 1.2;
-      font-weight: 800;
+    header {
       text-align: center;
-      margin: 8px 0 10px;
-      letter-spacing: 0.3px;
+      margin-bottom: 25px;
+      padding: 10px 0;
     }
 
-    .online-text {
-      text-align: center;
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 18px;
-      color: white;
-    }
-
-    .status-card {
-      background: var(--card);
-      border-radius: 24px;
-      padding: 20px 18px;
-      box-shadow: var(--shadow);
-      text-align: center;
-      margin-bottom: 18px;
-    }
-
-    .status-main {
-      font-size: 32px;
-      font-weight: 800;
-      line-height: 1.2;
-      margin-bottom: 10px;
-    }
-
-    .clock-text {
-      font-size: 25px;
-      font-weight: 800;
-      margin-bottom: 10px;
+    header h1 {
+      font-size: 24px;
       letter-spacing: 1px;
-    }
-
-    .warning-text {
-      font-size: 20px;
-      line-height: 1.45;
-      font-weight: 800;
-      color: var(--warning);
-      min-height: 30px;
-      white-space: pre-wrap;
-    }
-
-    .closed-card {
-      display: none;
-      background: rgba(0, 0, 0, 0.18);
-      border-radius: 24px;
-      padding: 24px 18px;
-      box-shadow: var(--shadow);
-      text-align: center;
-      margin-bottom: 18px;
-    }
-
-    .closed-title {
-      font-size: 30px;
-      font-weight: 800;
-      margin-bottom: 10px;
-      line-height: 1.3;
-    }
-
-    .closed-message {
-      font-size: 22px;
-      line-height: 1.5;
       font-weight: 700;
-      white-space: pre-wrap;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
 
-    .section-card {
-      background: transparent;
-      border-radius: 20px;
-      margin-top: 8px;
+    header p {
+      font-size: 14px;
+      opacity: 0.9;
+      margin-top: 5px;
     }
 
-    .field {
-      margin-bottom: 18px;
-      text-align: left;
+    /* Menu Navigasi Atas */
+    .nav-menu {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 15px;
     }
 
-    .field label {
-      display: block;
-      font-size: 24px;
-      font-weight: 800;
-      color: var(--label);
-      margin-bottom: 10px;
-    }
-
-    .field input,
-    .field select,
-    .field textarea {
-      width: 100%;
-      border: 3px solid rgba(0,0,0,0.25);
-      border-radius: 22px;
-      background: var(--input-bg);
-      color: var(--input-text);
-      padding: 20px 22px;
-      font-size: 24px;
-      line-height: 1.35;
-      outline: none;
-      box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
-    }
-
-    .field input[readonly] {
-      background: #f2f2f2;
-      color: #333;
-    }
-
-    .field textarea {
-      min-height: 120px;
-      resize: vertical;
-    }
-
-    .sub-title {
-      font-size: 28px;
-      font-weight: 800;
+    .nav-item {
+      flex: 1;
+      padding: 12px 5px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      border-radius: 10px;
       text-align: center;
-      margin: 24px 0 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 13px;
     }
 
-    .camera-box {
-      width: 100%;
-      background: rgba(255,255,255,0.12);
-      border-radius: 24px;
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      padding: 10px;
+    .nav-item.active {
+      background: #ffffff;
+      color: var(--primary);
     }
 
-    video, img {
+    .card {
+      background: #ffffff;
+      color: var(--text-dark);
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      margin-bottom: 20px;
+    }
+
+    h2, h3 {
+      font-size: 18px;
+      color: var(--primary);
+      margin-bottom: 15px;
+      border-bottom: 2px solid var(--gray-light);
+      padding-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #718096;
       display: block;
-      width: 100%;
-      border-radius: 18px;
-      background: #111;
-      min-height: 240px;
-      object-fit: cover;
+      margin-bottom: 5px;
+      margin-top: 10px;
     }
 
-    .btn-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-      margin-top: 18px;
+    select, input, textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 15px;
+      color: var(--text-dark);
+      background-color: var(--gray-light);
+      outline: none;
+    }
+
+    select:focus, input:focus, textarea:focus {
+      border-color: var(--primary);
+      background-color: #fff;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
     }
 
     button {
       width: 100%;
+      padding: 14px;
+      background: var(--primary);
+      color: #fff;
       border: none;
-      border-radius: 22px;
-      padding: 20px 18px;
-      font-size: 28px;
-      font-weight: 800;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
       cursor: pointer;
-      box-shadow: var(--shadow);
+      margin-top: 15px;
+      box-shadow: 0 4px 6px rgba(21, 131, 79, 0.2);
     }
 
-    .btn-primary {
-      background: #ffffff;
-      color: #111827;
-    }
+    button:hover { background: var(--primary-dark); }
+    button:active { transform: scale(0.98); }
 
-    .btn-secondary {
-      background: #facc15;
-      color: #111827;
-    }
-
-    .btn-success {
-      background: #0f172a;
-      color: #ffffff;
-    }
-
-    .submit-info {
-      margin-top: 18px;
-      text-align: center;
-      font-size: 20px;
-      font-weight: 700;
-      line-height: 1.5;
-      white-space: pre-wrap;
-    }
-
-    .helper-text {
-      text-align: center;
-      font-size: 18px;
-      color: var(--muted);
-      line-height: 1.5;
+    button.secondary {
+      background: #edf2f7;
+      color: var(--text-dark);
+      box-shadow: none;
       margin-top: 8px;
     }
+    button.secondary:hover { background: #e2e8f0; }
 
-    /* MODAL KUSTOM DINAMIS UNTUK SEMUA ALERT */
-    .custom-modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
+    /* Kamera Area (Sesuai Perbaikan) */
+    .camera-box {
+      position: relative;
       width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      z-index: 9999;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #222;
+      margin-top: 15px;
+    }
+
+    video, img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: contain;
+    }
+
+    /* Info Profil & Riwayat Box */
+    .profile-info {
+      background: #ebf8f2;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    .riwayat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .riwayat-item {
+      background: var(--gray-light);
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .riwayat-item span {
+      font-size: 11px;
+      color: #718096;
+      display: block;
+      text-transform: uppercase;
+    }
+
+    .riwayat-item strong {
+      font-size: 15px;
+      color: var(--text-dark);
+      display: block;
+      margin-top: 4px;
+    }
+
+    /* CSS Desain Tabel Riwayat Bulanan */
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 15px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    th {
+      background-color: var(--primary);
+      color: white;
+      padding: 10px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 10px;
+      border-bottom: 1px solid #e2e8f0;
+      color: var(--text-dark);
+      white-space: nowrap;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f7fafc;
+    }
+
+    .text-center { text-align: center; }
+
+    /* Overlay Status Loading */
+    .loading-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
       justify-content: center;
       align-items: center;
-      padding: 20px;
+      z-index: 9999;
+      font-weight: bold;
+      font-size: 16px;
     }
 
-    .custom-modal-box {
-      background: #ffffff;
-      color: #1f2937;
-      width: 100%;
-      max-width: 500px;
-      border-radius: 28px;
-      padding: 32px 24px;
-      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
-      text-align: center;
-      animation: modalPop 0.25s ease-out;
-    }
-
-    @keyframes modalPop {
-      from { transform: scale(0.9); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-
-    .custom-modal-title {
-      font-size: 36px; /* 1.5x lebih besar */
-      font-weight: 800; /* Bold tebal */
-      margin-bottom: 16px;
-    }
-
-    /* Warna Judul Modal Berdasarkan Tipe */
-    .custom-modal-box.success .custom-modal-title { color: #15834f; }
-    .custom-modal-box.error .custom-modal-title { color: #c73d3d; }
-    .custom-modal-box.warning .custom-modal-title { color: #d97706; }
-
-    .custom-modal-message {
-      font-size: 22px;
-      line-height: 1.5;
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 28px;
-      white-space: pre-wrap;
-    }
-
-    .custom-modal-btn {
-      background: #111827;
-      color: #ffffff;
-      font-size: 24px;
-      font-weight: 800;
-      padding: 16px 36px;
-      border-radius: 18px;
-      border: none;
-      cursor: pointer;
-      width: auto;
-      min-width: 140px;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-    }
-
-    .custom-modal-btn:active {
-      transform: scale(0.98);
-    }
-
-    @media (min-width: 640px) {
-      body {
-        padding: 24px;
-      }
-
-      .btn-grid {
-        grid-template-columns: 1fr 1fr 1fr;
-      }
-
-      .field label {
-        font-size: 22px;
-      }
-
-      .field input,
-      .field select,
-      .field textarea {
-        font-size: 22px;
-      }
-    }
+    /* Toggles Page */
+    .app-page { display: none; }
+    #view-login { display: block; }
+    #view-main-app { display: none; }
   </style>
 </head>
-<body class="masuk">
+<body>
+
+  <div class="loading-overlay" id="loading">Memproses data... Mohon tunggu sebentar...</div>
+
   <div class="container">
-    <div class="page-title">ABSENSI KPU KOTA MALANG</div>
-    <div class="online-text" id="networkInfo">Online</div>
+    <header>
+      <h1>KPU KOTA MALANG</h1>
+      <p>Sistem Aplikasi Absensi Selfie Digital</p>
+    </header>
 
-    <div class="status-card">
-      <div class="status-main" id="statusText">🟢 MASUK</div>
-      <div class="clock-text" id="jamText">00.00.00</div>
-      <div class="warning-text" id="warningTerlambat"></div>
+    <div class="card app-page" id="view-login">
+      <h2>Pintu Masuk Pegawai</h2>
+      
+      <label for="loginNama">Nama Pegawai</label>
+      <select id="loginNama">
+        <option value="">-- Pilih Nama Anda --</option>
+      </select>
+
+      <label for="loginPassword">Kata Sandi</label>
+      <input type="password" id="loginPassword" placeholder="Masukkan password">
+
+      <button onclick="loginPegawai()">MASUK KE SISTEM</button>
     </div>
 
-    <div class="closed-card" id="closedBox">
-      <div class="closed-title">LAYANAN ABSENSI TUTUP</div>
-      <div class="closed-message" id="closedMessage"></div>
-    </div>
 
-    <div class="section-card" id="mainFormBox">
-      <div class="field">
-        <label for="nama">NAMA</label>
-        <select id="nama">
-          <option value="">-- Pilih Nama --</option>
-        </select>
+    <div id="view-main-app">
+      
+      <div class="nav-menu">
+        <div class="nav-item active" id="btn-nav-absen" onclick="switchPage('absen')">📝 Presensi</div>
+        <div class="nav-item" id="btn-nav-riwayat" onclick="switchPage('riwayat')">📅 Riwayat Bulanan</div>
+        <div class="nav-item" id="btn-nav-password" onclick="switchPage('password')">🔒 Ubah Password</div>
       </div>
 
-      <div class="field">
-        <label for="nip">NIP</label>
-        <input type="text" id="nip" readonly />
+      <div class="card">
+        <h3>Informasi Pengguna</h3>
+        <div class="profile-info">
+          <div id="profNama">Nama: -</div>
+          <div id="profNip">NIP: -</div>
+          <div id="profJabatan">Jabatan: -</div>
+        </div>
+
+        <div class="riwayat-grid">
+          <div class="riwayat-item">
+            <span>Jam Masuk (Hari Ini)</span>
+            <strong id="jamMasuk" style="color: var(--primary);">--:--</strong>
+          </div>
+          <div class="riwayat-item">
+            <span>Jam Pulang (Hari Ini)</span>
+            <strong id="jamPulang" style="color: var(--primary);">--:--</strong>
+          </div>
+        </div>
+        <button class="secondary" onclick="logout()">Keluar Aplikasi</button>
       </div>
 
-      <div class="field">
-        <label for="jenisAbsen">JENIS ABSEN</label>
-        <select id="jenisAbsen">
-          <option value="WFO" selected>WFO</option>
-          <option value="WFA">WFA</option>
-          <option value="WFH">WFH</option>
+      <div class="card app-page" id="view-page-absen" style="display: block;">
+        <h3>Isi Formulir Absen</h3>
+        
+        <label for="jenis">Jenis Presensi</label>
+        <select id="jenis">
+          <option value="WFO">WFO (Work From Office)</option>
+          <option value="WFH">WFH (Work From Home)</option>
+          <option value="DL">DL (Dinas Luar)</option>
           <option value="CUTI">CUTI</option>
-          <option value="DL">DL</option>
-          <option value="SAKIT">SAKIT</option>
-          <option value="IJIN">IJIN</option>
         </select>
-      </div>
 
-      <div id="formPulang" style="display:none;">
-        <div class="field">
-          <label for="jabatan">JABATAN</label>
-          <input type="text" id="jabatan" readonly />
+        <label for="uraian">Uraian Tugas Pekerjaan</label>
+        <textarea id="uraian" placeholder="Tuliskan detail pekerjaan Anda..."></textarea>
+
+        <label for="output">Output Kerja</label>
+        <textarea id="output" placeholder="Misal: Dokumen BA, Laporan Web, Desain Infografis..."></textarea>
+
+        <label for="alamat">Lokasi / Alamat Sekarang</label>
+        <textarea id="alamat" placeholder="Tulis nama kantor atau alamat lokasi Anda saat ini..."></textarea>
+
+        <label>Verifikasi Wajah (Kamera)</label>
+        <div class="camera-box">
+          <video id="video" autoplay playsinline></video>
+          <img id="preview" style="display:none;" alt="Preview Foto">
         </div>
 
-        <div class="field">
-          <label for="atasan">ATASAN</label>
-          <input type="text" id="atasan" readonly />
-        </div>
+        <button type="button" class="secondary" onclick="ambilFoto()">📸 AMBIL FOTO SELFIE</button>
+        <button type="button" style="background: var(--warning); display:none;" id="btnUlangFoto" onclick="ulangFoto()">🔄 FOTO ULANG</button>
+        
+        <button onclick="kirimAbsen()">KIRIM DATA PRESENSI</button>
+      </div>
 
-        <div class="field">
-          <label for="uraianTugas">URAIAN TUGAS</label>
-          <textarea id="uraianTugas" placeholder="Tulis uraian tugas di sini"></textarea>
-        </div>
+      <div class="card app-page" id="view-page-riwayat">
+        <h3>Pencarian Riwayat Bulanan</h3>
+        
+        <label for="filterBulan">Pilih Bulan & Tahun</label>
+        <input type="month" id="filterBulan" onchange="loadRiwayatBulanan()">
 
-        <div class="field">
-          <label for="outputKerja">OUTPUT</label>
-          <textarea id="outputKerja" placeholder="Tulis output pekerjaan di sini"></textarea>
-        </div>
-
-        <div class="field">
-          <label for="alamat">ALAMAT</label>
-          <textarea id="alamat" placeholder="Tulis alamat di sini"></textarea>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Tanggal</th>
+                <th>Jenis</th>
+                <th class="text-center">Jam Masuk</th>
+                <th class="text-center">Jam Pulang</th>
+                <th>Terlambat</th>
+              </tr>
+            </thead>
+            <tbody id="tabelRiwayatBody">
+              <tr>
+                <td colspan="5" class="text-center" style="color: #a0aec0; padding: 20px;">Silakan pilih bulan terlebih dahulu.</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <div class="sub-title">AMBIL SELFIE</div>
+      <div class="card app-page" id="view-page-password">
+        <h3>Formulir Ubah Password</h3>
+        
+        <label for="passwordLama">Kata Sandi Saat Ini</label>
+        <input type="password" id="passwordLama" placeholder="Ketik sandi lama Anda">
 
-      <div class="camera-box">
-        <video id="video" autoplay playsinline></video>
-        <img id="preview" alt="Preview Foto" style="display:none;" />
+        <label for="passwordBaru">Kata Sandi Baru</label>
+        <input type="password" id="passwordBaru" placeholder="Ketik sandi baru Anda">
+
+        <button onclick="prosesUbahPassword()">SIMPAN PASSWORD BARU</button>
+        <button type="button" class="secondary" onclick="switchPage('absen')">Kembali ke Presensi</button>
       </div>
 
-      <div class="helper-text">
-        Pastikan wajah terlihat jelas sebelum menekan tombol kirim.
-      </div>
-
-      <div class="btn-grid">
-        <button type="button" class="btn-primary" onclick="ambilFoto()">AMBIL FOTO</button>
-        <button type="button" class="btn-secondary" onclick="ulangFoto()">ULANG FOTO</button>
-        <button type="button" class="btn-success" onclick="kirimAbsen()">KIRIM ABSEN</button>
-      </div>
-
-      <div class="submit-info" id="submitInfo"></div>
-    </div>
-  </div>
-
-  <div class="custom-modal-overlay" id="customModal">
-    <div class="custom-modal-box" id="modalBox">
-      <div class="custom-modal-title" id="modalTitle">Pemberitahuan</div>
-      <div class="custom-modal-message" id="modalMessage">Detail pesan di sini.</div>
-      <button type="button" class="custom-modal-btn" id="modalBtn">OK</button>
     </div>
   </div>
 
   <script>
     const API = "https://script.google.com/macros/s/AKfycbwx1pMmMPnnrjZUBWDAqvD76kV1blXAA74u6R6G4nT5U-txQdHUZyP6en7WZNkBHLIROQ/exec";
-    const SESSION_MS = 5 * 60 * 1000;
 
-    let pegawai = [];
-    let config = {};
+    let pegawaiLogin = null;
     let fotoBase64 = null;
-    let sessionTimer = null;
-
-    const nama = document.getElementById("nama");
-    const nip = document.getElementById("nip");
-    const jabatan = document.getElementById("jabatan");
-    const atasan = document.getElementById("atasan");
-    const jenisAbsen = document.getElementById("jenisAbsen");
-    const uraianTugas = document.getElementById("uraianTugas");
-    const outputKerja = document.getElementById("outputKerja");
-    const alamat = document.getElementById("alamat");
-    const formPulang = document.getElementById("formPulang");
-    const statusText = document.getElementById("statusText");
-    const jamText = document.getElementById("jamText");
-    const warningTerlambat = document.getElementById("warningTerlambat");
-    const video = document.getElementById("video");
-    const preview = document.getElementById("preview");
-    const submitInfo = document.getElementById("submitInfo");
-    const networkInfo = document.getElementById("networkInfo");
-    const closedBox = document.getElementById("closedBox");
-    const closedMessage = document.getElementById("closedMessage");
-    const mainFormBox = document.getElementById("mainFormBox");
+    let localStream = null;
     
-    // Elemen Kendali Modal Kustom
-    const customModal = document.getElementById("customModal");
-    const modalBox = document.getElementById("modalBox");
-    const modalTitle = document.getElementById("modalTitle");
-    const modalMessage = document.getElementById("modalMessage");
-    const modalBtn = document.getElementById("modalBtn");
+    const TIMEOUT_IN_MS = 10 * 60 * 1000; 
+    let sessionTimeoutTimer = null;
 
-    function updateNetworkInfo() {
-      networkInfo.innerText = navigator.onLine ? "Online" : "Offline";
+    function showLoading(show) {
+      document.getElementById('loading').style.display = show ? 'flex' : 'none';
     }
 
-    window.addEventListener("online", updateNetworkInfo);
-    window.addEventListener("offline", updateNetworkInfo);
-
-    // ENGINE UTAMA MODAL KUSTOM (MENGGANTIKAN ALERT JAUH LEBIH BESAR & BOLD)
-    function tampilkanPesan(judul, isiPesan, tipe = "warning", callback = null) {
-      modalBox.className = "custom-modal-box " + tipe;
-      modalTitle.innerText = judul;
-      modalMessage.innerText = isiPesan;
-      customModal.style.display = "flex";
+    // =====================================================
+    // ATUR HALAMAN (SWITCH TAB PAGE)
+    // =====================================================
+    function switchPage(pageName) {
+      document.getElementById("view-page-absen").style.display = "none";
+      document.getElementById("view-page-riwayat").style.display = "none";
+      document.getElementById("view-page-password").style.display = "none";
       
-      modalBtn.onclick = function() {
-        customModal.style.display = "none";
-        if (callback && typeof callback === "function") {
-          callback();
+      document.getElementById("btn-nav-absen").classList.remove("active");
+      document.getElementById("btn-nav-riwayat").classList.remove("active");
+      document.getElementById("btn-nav-password").classList.remove("active");
+
+      // Stop kamera jika tidak di halaman absen demi menghemat baterai HP user
+      if(pageName !== 'absen' && localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+        localStream = null;
+      }
+
+      if (pageName === 'absen') {
+        document.getElementById("view-page-absen").style.display = "block";
+        document.getElementById("btn-nav-absen").classList.add("active");
+        if(!localStream) startCamera();
+      } else if (pageName === 'riwayat') {
+        document.getElementById("view-page-riwayat").style.display = "block";
+        document.getElementById("btn-nav-riwayat").classList.add("active");
+        // Otomatis set input bulan ke bulan berjalan jika masih kosong
+        if(!document.getElementById("filterBulan").value) {
+          const kini = new Date();
+          const bln = String(kini.getMonth() + 1).padStart(2, '0');
+          document.getElementById("filterBulan").value = `${kini.getFullYear()}-${bln}`;
+          loadRiwayatBulanan();
         }
-      };
-    }
-
-    function getConfigTime(key, fallback) {
-      const val = String(config[key] || "").trim();
-      return /^\d{2}:\d{2}$/.test(val) ? val : fallback;
-    }
-
-    function timeToMinutes(hhmm) {
-      const parts = String(hhmm || "00:00").replace(/\./g, ":").split(":");
-      const h = Number(parts[0] || 0);
-      const m = Number(parts[1] || 0);
-      return (h * 60) + m;
-    }
-
-    function minutesToTime(totalMinutes) {
-      let h = Math.floor(totalMinutes / 60);
-      let m = totalMinutes % 60;
-      h = ((h % 24) + 24) % 24;
-      return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
-    }
-
-    function getHariJakarta() {
-      return new Intl.DateTimeFormat("id-ID", {
-        weekday: "long",
-        timeZone: "Asia/Jakarta"
-      }).format(new Date()).toLowerCase();
-    }
-
-    function getJamPulangResmi() {
-      const hari = getHariJakarta();
-
-      if (hari === "senin" || hari === "selasa" || hari === "rabu" || hari === "kamis") {
-        return getConfigTime("jam_pulang_senin_kamis", "16:00");
+      } else if (pageName === 'password') {
+        document.getElementById("view-page-password").style.display = "block";
+        document.getElementById("btn-nav-password").classList.add("active");
       }
-
-      if (hari === "jumat") {
-        return getConfigTime("jam_pulang_jumat", "16:30");
-      }
-
-      return getConfigTime("jam_pulang_senin_kamis", "16:00");
     }
 
-    function getStatusSekarang() {
-      const now = new Date();
-      const jamShort = now.toLocaleTimeString("id-ID", {
-        hour12: false,
-        hour: "2-digit",
-        minute: "2-digit",
-        timeZone: "Asia/Jakarta"
-      });
-
-      const batasGantiForm = getConfigTime("batas_ganti_form", "12:00");
-      return jamShort < batasGantiForm ? "MASUK" : "PULANG";
-    }
-
-    function hitungTerlambatSekarang() {
-      const jamSekarang = new Date().toLocaleTimeString("id-ID", {
-        hour12: false,
-        hour: "2-digit",
-        minute: "2-digit",
-        timeZone: "Asia/Jakarta"
-      });
-
-      const jamMasukResmi = getConfigTime("jam_masuk", "07:30");
-      const terlambat = timeToMinutes(jamSekarang) - timeToMinutes(jamMasukResmi);
-      return terlambat > 0 ? terlambat : 0;
-    }
-
-    function getRekomendasiPulang(terlambatMenit) {
-      const jamPulangResmi = getJamPulangResmi();
-      const total = timeToMinutes(jamPulangResmi) + terlambatMenit;
-      return minutesToTime(total);
-    }
-
-    function isWebOpenNow() {
-      const now = new Date();
-      const jamSekarang = now.toLocaleTimeString("id-ID", {
-        hour12: false,
-        hour: "2-digit",
-        minute: "2-digit",
-        timeZone: "Asia/Jakarta"
-      });
-
-      const jamBukaWeb = getConfigTime("jam_buka_web", "06:00");
-      const jamTutupWeb = getConfigTime("jam_tutup_web", "18:00");
-
-      const menitSekarang = timeToMinutes(jamSekarang);
-      const menitBuka = timeToMinutes(jamBukaWeb);
-      const menitTutup = timeToMinutes(jamTutupWeb);
-
-      return menitSekarang >= menitBuka && menitSekarang <= menitTutup;
-    }
-
-    function updateWebAvailability() {
-      const jamBukaWeb = getConfigTime("jam_buka_web", "06:00");
-      const jamTutupWeb = getConfigTime("jam_tutup_web", "18:00");
-
-      const now = new Date();
-      const jamSekarang = now.toLocaleTimeString("id-ID", {
-        hour12: false,
-        hour: "2-digit",
-        minute: "2-digit",
-        timeZone: "Asia/Jakarta"
-      });
-
-      const menitSekarang = timeToMinutes(jamSekarang);
-      const menitBuka = timeToMinutes(jamBukaWeb);
-      const menitTutup = timeToMinutes(jamTutupWeb);
-
-      if (menitSekarang < menitBuka) {
-        closedBox.style.display = "block";
-        mainFormBox.style.display = "none";
-        closedMessage.innerText =
-          "Layanan absensi belum buka.\nJam layanan " +
-          jamBukaWeb.replace(":", ".") +
-          " - " +
-          jamTutupWeb.replace(":", ".");
-        return;
-      }
-
-      if (menitSekarang > menitTutup) {
-        closedBox.style.display = "block";
-        mainFormBox.style.display = "none";
-        closedMessage.innerText =
-          "Layanan absensi sudah tutup.\nJam layanan " +
-          jamBukaWeb.replace(":", ".") +
-          " - " +
-          jamTutupWeb.replace(":", ".");
-        return;
-      }
-
-      closedBox.style.display = "none";
-      mainFormBox.style.display = "block";
-    }
-
-    function clearFormPulang() {
-      uraianTugas.value = "";
-      outputKerja.value = "";
-      alamat.value = "";
-    }
-
-    function isiDataPegawai() {
-      const selectedNama = nama.value;
-      const p = pegawai.find(x => x.nama === selectedNama);
-
-      if (!p) {
-        nip.value = "";
-        jabatan.value = "";
-        atasan.value = "";
-        return;
-      }
-
-      nip.value = p.nip || "";
-      jabatan.value = p.jabatan || "";
-      atasan.value = p.atasan || "";
-      resetSessionTimer();
-    }
-
-    function updateWarningTerlambat() {
-      const status = getStatusSekarang();
-
-      if (status !== "MASUK") {
-        warningTerlambat.innerText = "";
-        return;
-      }
-
-      const terlambat = hitungTerlambatSekarang();
-
-      if (terlambat <= 0) {
-        warningTerlambat.innerText = "";
-        return;
-      }
-
-      if (terlambat > 59) {
-        warningTerlambat.innerText = "ANDA MELEBIHI BATAS WAKTU KETERLAMBATAN";
-        return;
-      }
-
-      warningTerlambat.innerText = "TERLAMBAT " + terlambat + " MENIT";
-    }
-
-    function updateTampilanStatus() {
-      const now = new Date();
-      const jamLengkap = now.toLocaleTimeString("id-ID", {
-        hour12: false,
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        timeZone: "Asia/Jakarta"
-      });
-
-      const status = getStatusSekarang();
-      jamText.innerText = jamLengkap.replace(/:/g, ".");
-
-      if (status === "MASUK") {
-        statusText.innerText = "🟢 MASUK";
-        document.body.className = "masuk";
-        formPulang.style.display = "none";
-        clearFormPulang();
-      } else {
-        statusText.innerText = "🔴 PULANG";
-        document.body.className = "pulang";
-        formPulang.style.display = "block";
-      }
-
-      updateWarningTerlambat();
-      updateWebAvailability();
-    }
-
-    async function initApp() {
+    // =====================================================
+    // AMBIL DAFTAR PEGAWAI AWAL
+    // =====================================================
+    async function init() {
       try {
-        updateNetworkInfo();
-        submitInfo.innerText = "Memuat data pegawai...";
-
-        const res = await fetch(API, { cache: "no-store" });
-        if (!res.ok) throw new Error("HTTP " + res.status);
-
-        const text = await res.text();
-        let data;
-        try {
-          data = JSON.parse(text);
-        } catch (e) {
-          throw new Error("Response bukan JSON: " + text.substring(0, 200));
+        const res = await fetch(API);
+        const data = await res.json();
+        if(data.result === "success") {
+          const select = document.getElementById("loginNama");
+          data.pegawai.forEach(p => {
+            const opt = document.createElement("option");
+            opt.value = p.nama;
+            opt.textContent = p.nama;
+            select.appendChild(opt);
+          });
         }
+      } catch(e) {
+        alert("Gagal memuat data awal pegawai: " + e.message);
+      }
+    }
+    init();
 
-        if (data.result === "error") {
-          throw new Error(data.message || "Terjadi kesalahan");
-        }
+    // =====================================================
+    // PROSES LOGIN PEGAWAI
+    // =====================================================
+    async function loginPegawai() {
+      const nama = document.getElementById("loginNama").value;
+      const password = document.getElementById("loginPassword").value;
 
-        pegawai = data.pegawai || [];
-        config = data.setting || {};
+      if(!nama || !password) {
+        alert("Pilih nama dan isi password terlebih dahulu!");
+        return;
+      }
 
-        nama.innerHTML = '<option value="">-- Pilih Nama --</option>';
-        pegawai.forEach(p => {
-          const o = document.createElement("option");
-          o.value = p.nama;
-          o.textContent = p.nama;
-          nama.appendChild(o);
-        });
+      showLoading(true);
+      try {
+        const url = `${API}?mode=login&nama=${encodeURIComponent(nama)}&password=${encodeURIComponent(password)}`;
+        const res = await fetch(url);
+        const data = await res.json();
 
-        submitInfo.innerText = "";
-        updateTampilanStatus();
-        startRealtime();
-        startCamera();
-        initSessionAutoRefresh();
+        if(data.result === "error") throw new Error(data.message);
 
-      } catch (err) {
-        console.error(err);
-        submitInfo.innerText = "Gagal memuat data!";
-        tampilkanPesan("Gagal Memuat Data", err.message, "error");
+        pegawaiLogin = data;
+        
+        document.getElementById("profNama").innerText = "Nama: " + pegawaiLogin.nama;
+        document.getElementById("profNip").innerText = "NIP: " + pegawaiLogin.nip;
+        document.getElementById("profJabatan").innerText = "Jabatan: " + pegawaiLogin.jabatan;
+
+        document.getElementById("view-login").style.display = "none";
+        document.getElementById("view-main-app").style.display = "block";
+        switchPage('absen');
+
+        await loadRiwayatHariIni();
+        startSessionTracker();
+
+      } catch(err) {
+        alert(err.message);
+      } finally {
+        showLoading(false);
       }
     }
 
+    // =====================================================
+    // PENGAWASAN SESSION TIMEOUT (10 MENIT)
+    // =====================================================
+    function resetSessionTimer() {
+      if (!pegawaiLogin) return; 
+      clearTimeout(sessionTimeoutTimer);
+      sessionTimeoutTimer = setTimeout(() => {
+        alert("Sesi Anda telah berakhir (10 Menit tanpa aktivitas). Silakan login kembali.");
+        logout();
+      }, TIMEOUT_IN_MS);
+    }
+
+    function startSessionTracker() {
+      resetSessionTimer();
+      window.addEventListener('mousemove', resetSessionTimer);
+      window.addEventListener('keypress', resetSessionTimer);
+      window.addEventListener('click', resetSessionTimer);
+      window.addEventListener('scroll', resetSessionTimer);
+      window.addEventListener('touchstart', resetSessionTimer);
+    }
+
+    function stopSessionTracker() {
+      clearTimeout(sessionTimeoutTimer);
+      window.removeEventListener('mousemove', resetSessionTimer);
+      window.removeEventListener('keypress', resetSessionTimer);
+      window.removeEventListener('click', resetSessionTimer);
+      window.removeEventListener('scroll', resetSessionTimer);
+      window.removeEventListener('touchstart', resetSessionTimer);
+    }
+
+    // =====================================================
+    // LOAD RIWAYAT HARI INI
+    // =====================================================
+    async function loadRiwayatHariIni() {
+      try {
+        const res = await fetch(`${API}?mode=riwayat&nip=${pegawaiLogin.nip}`);
+        const data = await res.json();
+        if(data.result === "success") {
+          document.getElementById("jamMasuk").innerText = data.jamMasuk;
+          document.getElementById("jamPulang").innerText = data.jamPulang;
+        }
+      } catch(e) {
+        console.error("Gagal menarik riwayat presensi terbaru.");
+      }
+    }
+
+    // =====================================================
+    // LOAD RIWAYAT BULANAN (TABEL)
+    // =====================================================
+    async function loadRiwayatBulanan() {
+      const bulan = document.getElementById("filterBulan").value;
+      if(!bulan) return;
+
+      showLoading(true);
+      const tbody = document.getElementById("tabelRiwayatBody");
+      tbody.innerHTML = `<tr><td colspan="5" class="text-center" style="color: #718096;">Mengambil data riwayat...</td></tr>`;
+
+      try {
+        const res = await fetch(`${API}?mode=riwayat_bulanan&nip=${pegawaiLogin.nip}&bulan=${bulan}`);
+        const data = await res.json();
+
+        if (data.result === "success") {
+          tbody.innerHTML = "";
+          if (data.data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center" style="color: var(--danger); padding:15px;">Tidak ditemukan data absensi pada bulan ini.</td></tr>`;
+            return;
+          }
+
+          data.data.forEach(item => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${item.tanggal}</td>
+              <td><strong>${item.jenis}</strong></td>
+              <td class="text-center" style="color: var(--primary); font-weight:600;">${item.jamMasuk}</td>
+              <td class="text-center" style="color: #3182ce; font-weight:600;">${item.jamPulang}</td>
+              <td style="color: ${item.keterangan !== '0' ? 'var(--danger)' : 'inherit'}">${item.keterangan === '0' ? 'Tepat Waktu' : item.keterangan}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center" style="color: var(--danger);">Gagal memproses data: ${e.message}</td></tr>`;
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // =====================================================
+    // KONFIGURASI CAPTURE KAMERA
+    // =====================================================
     async function startCamera() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: "user",
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          },
-          audio: false
+        localStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user" }, audio: false
         });
-        video.srcObject = stream;
-      } catch (err) {
-        console.error(err);
-        tampilkanPesan("Akses Kamera Gagal", "Kamera tidak bisa diakses: " + err.message, "error");
+        const video = document.getElementById("video");
+        video.srcObject = localStream;
+        video.style.display = "block";
+        document.getElementById("preview").style.display = "none";
+        document.getElementById("btnUlangFoto").style.display = "none";
+      } catch(err) {
+        alert("Akses kamera ditolak / tidak ditemukan.");
       }
     }
 
     function ambilFoto() {
-      resetSessionTimer();
-
-      if (!isWebOpenNow()) {
-        tampilkanPesan("Layanan Tutup", "Layanan absensi sedang tutup.", "warning");
-        return;
-      }
-
-      if (!video.srcObject) {
-        tampilkanPesan("Kamera Belum Siap", "Mohon tunggu hingga sistem mendeteksi kamera.", "warning");
-        return;
-      }
-
+      const video = document.getElementById("video");
       const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth || 720;
-      canvas.height = video.videoHeight || 1280;
-
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      
       const ctx = canvas.getContext("2d");
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
       fotoBase64 = canvas.toDataURL("image/png");
+
+      const preview = document.getElementById("preview");
       preview.src = fotoBase64;
       preview.style.display = "block";
       video.style.display = "none";
-      submitInfo.innerText = "Foto berhasil diambil";
+      document.getElementById("btnUlangFoto").style.display = "block";
     }
 
     function ulangFoto() {
-      resetSessionTimer();
       fotoBase64 = null;
-      preview.src = "";
-      preview.style.display = "none";
-      video.style.display = "block";
-      submitInfo.innerText = "";
+      document.getElementById("preview").style.display = "none";
+      document.getElementById("video").style.display = "block";
+      document.getElementById("btnUlangFoto").style.display = "none";
     }
 
-    function initSessionAutoRefresh() {
-      resetSessionTimer();
-
-      ["click", "change", "input", "keydown", "touchstart"].forEach(evt => {
-        document.addEventListener(evt, resetSessionTimer, { passive: true });
-      });
-    }
-
-    function resetSessionTimer() {
-      clearTimeout(sessionTimer);
-      sessionTimer = setTimeout(() => {
-        tampilkanPesan("Sesi Berakhir", "Sesi habis karena tidak submit dalam 5 menit. Halaman akan di-refresh.", "error", function() {
-          location.reload();
-        });
-      }, SESSION_MS);
-    }
-
-    function startRealtime() {
-      updateTampilanStatus();
-      setInterval(updateTampilanStatus, 1000);
-    }
-
+    // =====================================================
+    // SUBMIT DATA PRESENSI
+    // =====================================================
     async function kirimAbsen() {
+      if(!fotoBase64) {
+        alert("Ambil foto selfie verifikasi wajah terlebih dahulu!");
+        return;
+      }
+
+      showLoading(true);
       try {
-        resetSessionTimer();
+        const now = new Date();
+        const jamStr = now.toLocaleTimeString("id-ID", {
+          hour12: false, hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jakarta"
+        }).replace(/\./g, ':');
 
-        if (!navigator.onLine) {
-          tampilkanPesan("Koneksi Terputus", "Perangkat sedang offline. Periksa internet Anda.", "error");
-          return;
-        }
-
-        if (!isWebOpenNow()) {
-          tampilkanPesan("Layanan Tutup", "Layanan absensi sedang tutup.", "warning");
-          return;
-        }
-
-        if (!nama.value) {
-          tampilkanPesan("Validasi Form", "Silakan pilih nama terlebih dahulu.", "warning");
-          return;
-        }
-
-        if (!nip.value) {
-          tampilkanPesan("Validasi Form", "NIP belum terisi otomatis.", "warning");
-          return;
-        }
-
-        if (!fotoBase64) {
-          tampilkanPesan("Validasi Foto", "Silakan ambil foto terlebih dahulu.", "warning");
-          return;
-        }
-
-        const status = getStatusSekarang();
-
-        if (status === "PULANG") {
-          if (!jabatan.value.trim()) {
-            tampilkanPesan("Validasi Form", "Jabatan kosong.", "warning");
-            return;
-          }
-          if (!atasan.value.trim()) {
-            tampilkanPesan("Validasi Form", "Atasan kosong.", "warning");
-            return;
-          }
-          if (!uraianTugas.value.trim()) {
-            tampilkanPesan("Validasi Form", "Uraian tugas wajib diisi.", "warning");
-            return;
-          }
-          if (!outputKerja.value.trim()) {
-            tampilkanPesan("Validasi Form", "Output wajib diisi.", "warning");
-            return;
-          }
-          if (!alamat.value.trim()) {
-            tampilkanPesan("Validasi Form", "Alamat wajib diisi.", "warning");
-            return;
-          }
-        }
-
-        submitInfo.innerText = "Mengirim absensi... Mohon tunggu.";
-
-        const jamSekarang = new Date().toLocaleTimeString("id-ID", {
-          hour12: false,
-          hour: "2-digit",
-          minute: "2-digit",
-          timeZone: "Asia/Jakarta"
-        });
+        const statusAbsen = jamStr < "12:00" ? "MASUK" : "PULANG";
 
         const form = new FormData();
-        form.append("nama", nama.value);
-        form.append("nip", nip.value);
-        form.append("jenis", jenisAbsen.value || "WFO");
-        form.append("status", status);
-        form.append("jam", jamSekarang);
+        form.append("nama", pegawaiLogin.nama);
+        form.append("nip", pegawaiLogin.nip);
+        form.append("jabatan", pegawaiLogin.jabatan);
+        form.append("atasan", pegawaiLogin.atasan);
+        form.append("jenis", document.getElementById("jenis").value);
+        form.append("status", statusAbsen);
+        form.append("jam", jamStr);
         form.append("foto", fotoBase64);
-        form.append("jabatan", jabatan.value || "");
-        form.append("atasan", atasan.value || "");
-        form.append("uraian_tugas", uraianTugas.value.trim());
-        form.append("output", outputKerja.value.trim());
-        form.append("alamat", alamat.value.trim());
+        form.append("uraian_tugas", document.getElementById("uraian").value);
+        form.append("output", document.getElementById("output").value);
+        form.append("alamat", document.getElementById("alamat").value);
 
-        const res = await fetch(API, {
-          method: "POST",
-          body: form,
-          cache: "no-store"
-        });
+        const res = await fetch(API, { method: "POST", body: form });
+        const data = await res.json();
 
-        if (!res.ok) throw new Error("HTTP " + res.status);
+        if(data.result === "error") throw new Error(data.message);
 
-        const text = await res.text();
-        let data;
-        try {
-          data = JSON.parse(text);
-        } catch (e) {
-          throw new Error("Response POST bukan JSON: " + text.substring(0, 200));
-        }
+        alert(data.message);
+        
+        document.getElementById("uraian").value = "";
+        document.getElementById("output").value = "";
+        document.getElementById("alamat").value = "";
+        ulangFoto();
+        
+        await loadRiwayatHariIni();
 
-        if (data.result === "error") {
-          throw new Error(data.message || "Terjadi kesalahan");
-        }
-
-        submitInfo.innerText = "Absensi berhasil";
-
-        if (status === "MASUK") {
-          const terlambat = Number(data.terlambat || 0);
-
-          if (terlambat > 0 && terlambat <= 59) {
-            const rekomendasiPulang = getRekomendasiPulang(terlambat);
-            tampilkanPesan(
-              "Absensi Berhasil", 
-              "Anda terlambat " + terlambat + " menit.\nRekomendasi jam pulang " + rekomendasiPulang,
-              "success",
-              function() { location.reload(); }
-            );
-          } else if (terlambat > 59) {
-            tampilkanPesan(
-              "Absensi Berhasil", 
-              "Anda melebihi batas waktu keterlambatan.",
-              "success",
-              function() { location.reload(); }
-            );
-          } else {
-            tampilkanPesan("Absensi Berhasil", "Data masuk Anda telah aman tersimpan.", "success", function() { location.reload(); });
-          }
-        } else {
-          tampilkanPesan("Absensi Berhasil", "Data pulang Anda telah aman tersimpan.", "success", function() { location.reload(); });
-        }
-
-      } catch (err) {
-        console.error(err);
-        submitInfo.innerText = "Gagal: " + err.message;
-        tampilkanPesan("Gagal Submit Absen", err.message, "error");
+      } catch(err) {
+        alert(err.message);
+      } finally {
+        showLoading(false);
       }
     }
 
-    nama.addEventListener("change", isiDataPegawai);
+    // =====================================================
+    // SUBMIT UBAH PASSWORD
+    // =====================================================
+    async function prosesUbahPassword() {
+      const lama = document.getElementById("passwordLama").value;
+      const baru = document.getElementById("passwordBaru").value;
 
-    updateNetworkInfo();
-    initApp();
+      if(!lama || !baru) {
+        alert("Mohon isi password lama dan password baru Anda!");
+        return;
+      }
+
+      showLoading(true);
+      try {
+        const url = `${API}?mode=ubahpassword&nama=${encodeURIComponent(pegawaiLogin.nama)}&password_lama=${encodeURIComponent(lama)}&password_baru=${encodeURIComponent(baru)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if(data.result === "error") throw new Error(data.message);
+
+        alert("Berhasil! Password Akun Anda telah diperbarui.");
+        document.getElementById("passwordLama").value = "";
+        document.getElementById("passwordBaru").value = "";
+        switchPage('absen');
+
+      } catch(e) {
+        alert(e.message);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // =====================================================
+    // LOGOUT SISTEM (RESET TOTAL)
+    // =====================================================
+    function logout() {
+      stopSessionTracker();
+      if(localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+        localStream = null;
+      }
+      pegawaiLogin = null;
+      fotoBase64 = null;
+      document.getElementById("loginPassword").value = "";
+      document.getElementById("passwordLama").value = "";
+      document.getElementById("passwordBaru").value = "";
+      document.getElementById("filterBulan").value = "";
+      document.getElementById("tabelRiwayatBody").innerHTML = `<tr><td colspan="5" class="text-center" style="color: #a0aec0; padding: 20px;">Silakan pilih bulan terlebih dahulu.</td></tr>`;
+      
+      document.getElementById("view-main-app").style.display = "none";
+      document.getElementById("view-login").style.display = "block";
+    }
   </script>
 </body>
 </html>
