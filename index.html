@@ -1,289 +1,743 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Absensi KPU Kota Malang</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABSENSI KPU KOTA MALANG</title>
+  <style>
+    :root {
+      --primary: #15834f;
+      --primary-dark: #0f613a;
+      --bg-gradient: linear-gradient(135deg, #15834f 0%, #0d4f30 100%);
+      --gray-light: #f8f9fa;
+      --text-dark: #2d3748;
+      --danger: #e53e3e;
+      --warning: #dd6b20;
+    }
 
-<style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-body{
-  margin:0;
-  padding:20px;
-  font-family:Arial;
-  background:#15834f;
-  color:white;
-}
+    body {
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      color: #ffffff;
+      padding: 20px 15px;
+    }
 
-.container{
-  max-width:600px;
-  margin:auto;
-}
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
 
-h1{
-  text-align:center;
-}
+    header {
+      text-align: center;
+      margin-bottom: 25px;
+      padding: 10px 0;
+    }
 
-.card{
-  background:white;
-  color:black;
-  padding:20px;
-  border-radius:20px;
-}
+    header h1 {
+      font-size: 24px;
+      letter-spacing: 1px;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
 
-select,
-input,
-textarea,
-button{
-  width:100%;
-  padding:15px;
-  margin-top:10px;
-  margin-bottom:20px;
-  border-radius:10px;
-  border:none;
-  font-size:16px;
-}
+    header p {
+      font-size: 14px;
+      opacity: 0.9;
+      margin-top: 5px;
+    }
 
-button{
-  background:#15834f;
-  color:white;
-  font-weight:bold;
-}
+    /* Menu Navigasi Atas */
+    .nav-menu {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 15px;
+    }
 
-video,
-img{
-  width:100%;
-  border-radius:20px;
-  background:#000;
-}
+    .nav-item {
+      flex: 1;
+      padding: 12px 5px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 13px;
+    }
 
-</style>
+    .nav-item.active {
+      background: #ffffff;
+      color: var(--primary);
+    }
+
+    .card {
+      background: #ffffff;
+      color: var(--text-dark);
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      margin-bottom: 20px;
+    }
+
+    h2, h3 {
+      font-size: 18px;
+      color: var(--primary);
+      margin-bottom: 15px;
+      border-bottom: 2px solid var(--gray-light);
+      padding-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #718096;
+      display: block;
+      margin-bottom: 5px;
+      margin-top: 10px;
+    }
+
+    select, input, textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 15px;
+      color: var(--text-dark);
+      background-color: var(--gray-light);
+      outline: none;
+    }
+
+    select:focus, input:focus, textarea:focus {
+      border-color: var(--primary);
+      background-color: #fff;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 15px;
+      box-shadow: 0 4px 6px rgba(21, 131, 79, 0.2);
+    }
+
+    button:hover { background: var(--primary-dark); }
+    button:active { transform: scale(0.98); }
+
+    button.secondary {
+      background: #edf2f7;
+      color: var(--text-dark);
+      box-shadow: none;
+      margin-top: 8px;
+    }
+    button.secondary:hover { background: #e2e8f0; }
+
+    /* Kamera Area (Sesuai Perbaikan) */
+    .camera-box {
+      position: relative;
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #222;
+      margin-top: 15px;
+    }
+
+    video, img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: contain;
+    }
+
+    /* Info Profil & Riwayat Box */
+    .profile-info {
+      background: #ebf8f2;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    .riwayat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .riwayat-item {
+      background: var(--gray-light);
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .riwayat-item span {
+      font-size: 11px;
+      color: #718096;
+      display: block;
+      text-transform: uppercase;
+    }
+
+    .riwayat-item strong {
+      font-size: 15px;
+      color: var(--text-dark);
+      display: block;
+      margin-top: 4px;
+    }
+
+    /* CSS Desain Tabel Riwayat Bulanan */
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 15px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    th {
+      background-color: var(--primary);
+      color: white;
+      padding: 10px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 10px;
+      border-bottom: 1px solid #e2e8f0;
+      color: var(--text-dark);
+      white-space: nowrap;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f7fafc;
+    }
+
+    .text-center { text-align: center; }
+
+    /* Overlay Status Loading */
+    .loading-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    /* Toggles Page */
+    .app-page { display: none; }
+    #view-login { display: block; }
+    #view-main-app { display: none; }
+  </style>
 </head>
-
 <body>
 
-<div class="container">
+  <div class="loading-overlay" id="loading">Memproses data... Mohon tunggu sebentar...</div>
 
-<h1>ABSENSI KPU KOTA MALANG</h1>
+  <div class="container">
+    <header>
+      <h1>KPU KOTA MALANG</h1>
+      <p>Sistem Aplikasi Absensi Selfie Digital</p>
+    </header>
 
-<div class="card">
+    <div class="card app-page" id="view-login">
+      <h2>Pintu Masuk Pegawai</h2>
+      
+      <label for="loginNama">Nama Pegawai</label>
+      <select id="loginNama">
+        <option value="">-- Pilih Nama Anda --</option>
+      </select>
 
-<select id="nama">
-<option value="">Pilih Nama</option>
-</select>
+      <label for="loginPassword">Kata Sandi</label>
+      <input type="password" id="loginPassword" placeholder="Masukkan password">
 
-<input type="text" id="nip" placeholder="NIP" readonly>
+      <button onclick="loginPegawai()">MASUK KE SISTEM</button>
+    </div>
 
-<select id="jenis">
-<option value="WFO">WFO</option>
-<option value="WFH">WFH</option>
-<option value="DL">DL</option>
-<option value="CUTI">CUTI</option>
-</select>
 
-<textarea id="uraian" placeholder="Uraian tugas"></textarea>
+    <div id="view-main-app">
+      
+      <div class="nav-menu">
+        <div class="nav-item active" id="btn-nav-absen" onclick="switchPage('absen')">📝 Presensi</div>
+        <div class="nav-item" id="btn-nav-riwayat" onclick="switchPage('riwayat')">📅 Riwayat Bulanan</div>
+        <div class="nav-item" id="btn-nav-password" onclick="switchPage('password')">🔒 Ubah Password</div>
+      </div>
 
-<textarea id="output" placeholder="Output kerja"></textarea>
+      <div class="card">
+        <h3>Informasi Pengguna</h3>
+        <div class="profile-info">
+          <div id="profNama">Nama: -</div>
+          <div id="profNip">NIP: -</div>
+          <div id="profJabatan">Jabatan: -</div>
+        </div>
 
-<textarea id="alamat" placeholder="Alamat"></textarea>
+        <div class="riwayat-grid">
+          <div class="riwayat-item">
+            <span>Jam Masuk (Hari Ini)</span>
+            <strong id="jamMasuk" style="color: var(--primary);">--:--</strong>
+          </div>
+          <div class="riwayat-item">
+            <span>Jam Pulang (Hari Ini)</span>
+            <strong id="jamPulang" style="color: var(--primary);">--:--</strong>
+          </div>
+        </div>
+        <button class="secondary" onclick="logout()">Keluar Aplikasi</button>
+      </div>
 
-<video id="video" autoplay playsinline></video>
+      <div class="card app-page" id="view-page-absen" style="display: block;">
+        <h3>Isi Formulir Absen</h3>
+        
+        <label for="jenis">Jenis Presensi</label>
+        <select id="jenis">
+          <option value="WFO">WFO (Work From Office)</option>
+          <option value="WFH">WFH (Work From Home)</option>
+          <option value="DL">DL (Dinas Luar)</option>
+          <option value="CUTI">CUTI</option>
+        </select>
 
-<img id="preview" style="display:none;">
+        <label for="uraian">Uraian Tugas Pekerjaan</label>
+        <textarea id="uraian" placeholder="Tuliskan detail pekerjaan Anda..."></textarea>
 
-<button onclick="ambilFoto()">
-AMBIL FOTO
-</button>
+        <label for="output">Output Kerja</label>
+        <textarea id="output" placeholder="Misal: Dokumen BA, Laporan Web, Desain Infografis..."></textarea>
 
-<button onclick="kirimAbsen()">
-KIRIM ABSEN
-</button>
+        <label for="alamat">Lokasi / Alamat Sekarang</label>
+        <textarea id="alamat" placeholder="Tulis nama kantor atau alamat lokasi Anda saat ini..."></textarea>
 
-<div id="info"></div>
+        <label>Verifikasi Wajah (Kamera)</label>
+        <div class="camera-box">
+          <video id="video" autoplay playsinline></video>
+          <img id="preview" style="display:none;" alt="Preview Foto">
+        </div>
 
-</div>
-</div>
+        <button type="button" class="secondary" onclick="ambilFoto()">📸 AMBIL FOTO SELFIE</button>
+        <button type="button" style="background: var(--warning); display:none;" id="btnUlangFoto" onclick="ulangFoto()">🔄 FOTO ULANG</button>
+        
+        <button onclick="kirimAbsen()">KIRIM DATA PRESENSI</button>
+      </div>
 
-<script>
+      <div class="card app-page" id="view-page-riwayat">
+        <h3>Pencarian Riwayat Bulanan</h3>
+        
+        <label for="filterBulan">Pilih Bulan & Tahun</label>
+        <input type="month" id="filterBulan" onchange="loadRiwayatBulanan()">
 
-const API =
-"https://script.google.com/macros/s/AKfycbwx1pMmMPnnrjZUBWDAqvD76kV1blXAA74u6R6G4nT5U-txQdHUZyP6en7WZNkBHLIROQ/exec";
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Tanggal</th>
+                <th>Jenis</th>
+                <th class="text-center">Jam Masuk</th>
+                <th class="text-center">Jam Pulang</th>
+                <th>Terlambat</th>
+              </tr>
+            </thead>
+            <tbody id="tabelRiwayatBody">
+              <tr>
+                <td colspan="5" class="text-center" style="color: #a0aec0; padding: 20px;">Silakan pilih bulan terlebih dahulu.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-let pegawai = [];
-let fotoBase64 = null;
+      <div class="card app-page" id="view-page-password">
+        <h3>Formulir Ubah Password</h3>
+        
+        <label for="passwordLama">Kata Sandi Saat Ini</label>
+        <input type="password" id="passwordLama" placeholder="Ketik sandi lama Anda">
 
-const nama = document.getElementById("nama");
-const nip = document.getElementById("nip");
+        <label for="passwordBaru">Kata Sandi Baru</label>
+        <input type="password" id="passwordBaru" placeholder="Ketik sandi baru Anda">
 
-const video = document.getElementById("video");
-const preview = document.getElementById("preview");
+        <button onclick="prosesUbahPassword()">SIMPAN PASSWORD BARU</button>
+        <button type="button" class="secondary" onclick="switchPage('absen')">Kembali ke Presensi</button>
+      </div>
 
-const info = document.getElementById("info");
+    </div>
+  </div>
 
-async function init(){
+  <script>
+    const API = "https://script.google.com/macros/s/AKfycbwx1pMmMPnnrjZUBWDAqvD76kV1blXAA74u6R6G4nT5U-txQdHUZyP6en7WZNkBHLIROQ/exec";
 
-  const res = await fetch(API);
+    let pegawaiLogin = null;
+    let fotoBase64 = null;
+    let localStream = null;
+    
+    const TIMEOUT_IN_MS = 10 * 60 * 1000; 
+    let sessionTimeoutTimer = null;
 
-  const data = await res.json();
-
-  pegawai = data.pegawai || [];
-
-  pegawai.forEach(p=>{
-
-    const opt = document.createElement("option");
-
-    opt.value = p.nama;
-    opt.textContent = p.nama;
-
-    nama.appendChild(opt);
-
-  });
-
-  startCamera();
-}
-
-nama.addEventListener("change", ()=>{
-
-  const p = pegawai.find(x=>x.nama===nama.value);
-
-  if(!p){
-    nip.value = "";
-    return;
-  }
-
-  nip.value = p.nip || "";
-
-});
-
-async function startCamera(){
-
-  const stream =
-  await navigator.mediaDevices.getUserMedia({
-    video:true,
-    audio:false
-  });
-
-  video.srcObject = stream;
-}
-
-function ambilFoto(){
-
-  const canvas =
-  document.createElement("canvas");
-
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-
-  const ctx = canvas.getContext("2d");
-
-  ctx.drawImage(
-    video,
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
-
-  fotoBase64 =
-  canvas.toDataURL("image/png");
-
-  preview.src = fotoBase64;
-
-  preview.style.display = "block";
-
-  video.style.display = "none";
-}
-
-async function kirimAbsen(){
-
-  try{
-
-    if(!nama.value){
-      alert("Pilih nama");
-      return;
+    function showLoading(show) {
+      document.getElementById('loading').style.display = show ? 'flex' : 'none';
     }
 
-    if(!fotoBase64){
-      alert("Ambil foto dulu");
-      return;
-    }
+    // =====================================================
+    // ATUR HALAMAN (SWITCH TAB PAGE)
+    // =====================================================
+    function switchPage(pageName) {
+      document.getElementById("view-page-absen").style.display = "none";
+      document.getElementById("view-page-riwayat").style.display = "none";
+      document.getElementById("view-page-password").style.display = "none";
+      
+      document.getElementById("btn-nav-absen").classList.remove("active");
+      document.getElementById("btn-nav-riwayat").classList.remove("active");
+      document.getElementById("btn-nav-password").classList.remove("active");
 
-    const now = new Date();
-
-    const jam =
-    now.toLocaleTimeString(
-      "id-ID",
-      {
-        hour12:false,
-        hour:"2-digit",
-        minute:"2-digit",
-        timeZone:"Asia/Jakarta"
+      // Stop kamera jika tidak di halaman absen demi menghemat baterai HP user
+      if(pageName !== 'absen' && localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+        localStream = null;
       }
-    );
 
-    const status =
-    jam < "12:00"
-    ? "MASUK"
-    : "PULANG";
-
-    const form = new FormData();
-
-    form.append("nama", nama.value);
-    form.append("nip", nip.value);
-
-    form.append(
-      "jenis",
-      document.getElementById("jenis").value
-    );
-
-    form.append("status", status);
-
-    form.append("jam", jam);
-
-    form.append("foto", fotoBase64);
-
-    form.append(
-      "uraian_tugas",
-      document.getElementById("uraian").value
-    );
-
-    form.append(
-      "output",
-      document.getElementById("output").value
-    );
-
-    form.append(
-      "alamat",
-      document.getElementById("alamat").value
-    );
-
-    const res =
-    await fetch(API,{
-      method:"POST",
-      body:form
-    });
-
-    const data =
-    await res.json();
-
-    if(data.result==="error"){
-      throw new Error(data.message);
+      if (pageName === 'absen') {
+        document.getElementById("view-page-absen").style.display = "block";
+        document.getElementById("btn-nav-absen").classList.add("active");
+        if(!localStream) startCamera();
+      } else if (pageName === 'riwayat') {
+        document.getElementById("view-page-riwayat").style.display = "block";
+        document.getElementById("btn-nav-riwayat").classList.add("active");
+        // Otomatis set input bulan ke bulan berjalan jika masih kosong
+        if(!document.getElementById("filterBulan").value) {
+          const kini = new Date();
+          const bln = String(kini.getMonth() + 1).padStart(2, '0');
+          document.getElementById("filterBulan").value = `${kini.getFullYear()}-${bln}`;
+          loadRiwayatBulanan();
+        }
+      } else if (pageName === 'password') {
+        document.getElementById("view-page-password").style.display = "block";
+        document.getElementById("btn-nav-password").classList.add("active");
+      }
     }
 
-    alert("Absensi berhasil");
+    // =====================================================
+    // AMBIL DAFTAR PEGAWAI AWAL
+    // =====================================================
+    async function init() {
+      try {
+        const res = await fetch(API);
+        const data = await res.json();
+        if(data.result === "success") {
+          const select = document.getElementById("loginNama");
+          data.pegawai.forEach(p => {
+            const opt = document.createElement("option");
+            opt.value = p.nama;
+            opt.textContent = p.nama;
+            select.appendChild(opt);
+          });
+        }
+      } catch(e) {
+        alert("Gagal memuat data awal pegawai: " + e.message);
+      }
+    }
+    init();
 
-    location.reload();
+    // =====================================================
+    // PROSES LOGIN PEGAWAI
+    // =====================================================
+    async function loginPegawai() {
+      const nama = document.getElementById("loginNama").value;
+      const password = document.getElementById("loginPassword").value;
 
-  }catch(err){
+      if(!nama || !password) {
+        alert("Pilih nama dan isi password terlebih dahulu!");
+        return;
+      }
 
-    alert(err.message);
+      showLoading(true);
+      try {
+        const url = `${API}?mode=login&nama=${encodeURIComponent(nama)}&password=${encodeURIComponent(password)}`;
+        const res = await fetch(url);
+        const data = await res.json();
 
-  }
-}
+        if(data.result === "error") throw new Error(data.message);
 
-init();
+        pegawaiLogin = data;
+        
+        document.getElementById("profNama").innerText = "Nama: " + pegawaiLogin.nama;
+        document.getElementById("profNip").innerText = "NIP: " + pegawaiLogin.nip;
+        document.getElementById("profJabatan").innerText = "Jabatan: " + pegawaiLogin.jabatan;
 
-</script>
+        document.getElementById("view-login").style.display = "none";
+        document.getElementById("view-main-app").style.display = "block";
+        switchPage('absen');
 
+        await loadRiwayatHariIni();
+        startSessionTracker();
+
+      } catch(err) {
+        alert(err.message);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // =====================================================
+    // PENGAWASAN SESSION TIMEOUT (10 MENIT)
+    // =====================================================
+    function resetSessionTimer() {
+      if (!pegawaiLogin) return; 
+      clearTimeout(sessionTimeoutTimer);
+      sessionTimeoutTimer = setTimeout(() => {
+        alert("Sesi Anda telah berakhir (10 Menit tanpa aktivitas). Silakan login kembali.");
+        logout();
+      }, TIMEOUT_IN_MS);
+    }
+
+    function startSessionTracker() {
+      resetSessionTimer();
+      window.addEventListener('mousemove', resetSessionTimer);
+      window.addEventListener('keypress', resetSessionTimer);
+      window.addEventListener('click', resetSessionTimer);
+      window.addEventListener('scroll', resetSessionTimer);
+      window.addEventListener('touchstart', resetSessionTimer);
+    }
+
+    function stopSessionTracker() {
+      clearTimeout(sessionTimeoutTimer);
+      window.removeEventListener('mousemove', resetSessionTimer);
+      window.removeEventListener('keypress', resetSessionTimer);
+      window.removeEventListener('click', resetSessionTimer);
+      window.removeEventListener('scroll', resetSessionTimer);
+      window.removeEventListener('touchstart', resetSessionTimer);
+    }
+
+    // =====================================================
+    // LOAD RIWAYAT HARI INI
+    // =====================================================
+    async function loadRiwayatHariIni() {
+      try {
+        const res = await fetch(`${API}?mode=riwayat&nip=${pegawaiLogin.nip}`);
+        const data = await res.json();
+        if(data.result === "success") {
+          document.getElementById("jamMasuk").innerText = data.jamMasuk;
+          document.getElementById("jamPulang").innerText = data.jamPulang;
+        }
+      } catch(e) {
+        console.error("Gagal menarik riwayat presensi terbaru.");
+      }
+    }
+
+    // =====================================================
+    // LOAD RIWAYAT BULANAN (TABEL)
+    // =====================================================
+    async function loadRiwayatBulanan() {
+      const bulan = document.getElementById("filterBulan").value;
+      if(!bulan) return;
+
+      showLoading(true);
+      const tbody = document.getElementById("tabelRiwayatBody");
+      tbody.innerHTML = `<tr><td colspan="5" class="text-center" style="color: #718096;">Mengambil data riwayat...</td></tr>`;
+
+      try {
+        const res = await fetch(`${API}?mode=riwayat_bulanan&nip=${pegawaiLogin.nip}&bulan=${bulan}`);
+        const data = await res.json();
+
+        if (data.result === "success") {
+          tbody.innerHTML = "";
+          if (data.data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center" style="color: var(--danger); padding:15px;">Tidak ditemukan data absensi pada bulan ini.</td></tr>`;
+            return;
+          }
+
+          data.data.forEach(item => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${item.tanggal}</td>
+              <td><strong>${item.jenis}</strong></td>
+              <td class="text-center" style="color: var(--primary); font-weight:600;">${item.jamMasuk}</td>
+              <td class="text-center" style="color: #3182ce; font-weight:600;">${item.jamPulang}</td>
+              <td style="color: ${item.keterangan !== '0' ? 'var(--danger)' : 'inherit'}">${item.keterangan === '0' ? 'Tepat Waktu' : item.keterangan}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center" style="color: var(--danger);">Gagal memproses data: ${e.message}</td></tr>`;
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // =====================================================
+    // KONFIGURASI CAPTURE KAMERA
+    // =====================================================
+    async function startCamera() {
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user" }, audio: false
+        });
+        const video = document.getElementById("video");
+        video.srcObject = localStream;
+        video.style.display = "block";
+        document.getElementById("preview").style.display = "none";
+        document.getElementById("btnUlangFoto").style.display = "none";
+      } catch(err) {
+        alert("Akses kamera ditolak / tidak ditemukan.");
+      }
+    }
+
+    function ambilFoto() {
+      const video = document.getElementById("video");
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      fotoBase64 = canvas.toDataURL("image/png");
+
+      const preview = document.getElementById("preview");
+      preview.src = fotoBase64;
+      preview.style.display = "block";
+      video.style.display = "none";
+      document.getElementById("btnUlangFoto").style.display = "block";
+    }
+
+    function ulangFoto() {
+      fotoBase64 = null;
+      document.getElementById("preview").style.display = "none";
+      document.getElementById("video").style.display = "block";
+      document.getElementById("btnUlangFoto").style.display = "none";
+    }
+
+    // =====================================================
+    // SUBMIT DATA PRESENSI
+    // =====================================================
+    async function kirimAbsen() {
+      if(!fotoBase64) {
+        alert("Ambil foto selfie verifikasi wajah terlebih dahulu!");
+        return;
+      }
+
+      showLoading(true);
+      try {
+        const now = new Date();
+        const jamStr = now.toLocaleTimeString("id-ID", {
+          hour12: false, hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jakarta"
+        }).replace(/\./g, ':');
+
+        const statusAbsen = jamStr < "12:00" ? "MASUK" : "PULANG";
+
+        const form = new FormData();
+        form.append("nama", pegawaiLogin.nama);
+        form.append("nip", pegawaiLogin.nip);
+        form.append("jabatan", pegawaiLogin.jabatan);
+        form.append("atasan", pegawaiLogin.atasan);
+        form.append("jenis", document.getElementById("jenis").value);
+        form.append("status", statusAbsen);
+        form.append("jam", jamStr);
+        form.append("foto", fotoBase64);
+        form.append("uraian_tugas", document.getElementById("uraian").value);
+        form.append("output", document.getElementById("output").value);
+        form.append("alamat", document.getElementById("alamat").value);
+
+        const res = await fetch(API, { method: "POST", body: form });
+        const data = await res.json();
+
+        if(data.result === "error") throw new Error(data.message);
+
+        alert(data.message);
+        
+        document.getElementById("uraian").value = "";
+        document.getElementById("output").value = "";
+        document.getElementById("alamat").value = "";
+        ulangFoto();
+        
+        await loadRiwayatHariIni();
+
+      } catch(err) {
+        alert(err.message);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // =====================================================
+    // SUBMIT UBAH PASSWORD
+    // =====================================================
+    async function prosesUbahPassword() {
+      const lama = document.getElementById("passwordLama").value;
+      const baru = document.getElementById("passwordBaru").value;
+
+      if(!lama || !baru) {
+        alert("Mohon isi password lama dan password baru Anda!");
+        return;
+      }
+
+      showLoading(true);
+      try {
+        const url = `${API}?mode=ubahpassword&nama=${encodeURIComponent(pegawaiLogin.nama)}&password_lama=${encodeURIComponent(lama)}&password_baru=${encodeURIComponent(baru)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if(data.result === "error") throw new Error(data.message);
+
+        alert("Berhasil! Password Akun Anda telah diperbarui.");
+        document.getElementById("passwordLama").value = "";
+        document.getElementById("passwordBaru").value = "";
+        switchPage('absen');
+
+      } catch(e) {
+        alert(e.message);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // =====================================================
+    // LOGOUT SISTEM (RESET TOTAL)
+    // =====================================================
+    function logout() {
+      stopSessionTracker();
+      if(localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+        localStream = null;
+      }
+      pegawaiLogin = null;
+      fotoBase64 = null;
+      document.getElementById("loginPassword").value = "";
+      document.getElementById("passwordLama").value = "";
+      document.getElementById("passwordBaru").value = "";
+      document.getElementById("filterBulan").value = "";
+      document.getElementById("tabelRiwayatBody").innerHTML = `<tr><td colspan="5" class="text-center" style="color: #a0aec0; padding: 20px;">Silakan pilih bulan terlebih dahulu.</td></tr>`;
+      
+      document.getElementById("view-main-app").style.display = "none";
+      document.getElementById("view-login").style.display = "block";
+    }
+  </script>
 </body>
 </html>
